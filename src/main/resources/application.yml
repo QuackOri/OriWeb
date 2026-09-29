@@ -45,6 +45,26 @@ server:
 app:
   upload-dir: ${UPLOAD_DIR:./uploads}
 
+# Spring Boot Actuator: health, info만 HTTP로 노출
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: OriWeb
+    description: 모의해킹 실습용 게시판
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

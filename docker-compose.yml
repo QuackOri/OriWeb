@@ -40,6 +40,12 @@ services:
       - "127.0.0.1:8080:8080"
     volumes:
       - upload-data:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy

@@ -11,7 +11,7 @@
 | 구분 | 사용 기술 |
 |---|---|
 | Language | Java 21 |
-| Framework | Spring Boot 3.5 (Spring Web, Spring Data JPA, Validation, Spring Security OAuth2 Client) |
+| Framework | Spring Boot 3.5 (Spring Web, Spring Data JPA, Validation, Spring Security OAuth2 Client, Actuator) |
 | Build | Gradle 8.14 (Gradle Wrapper 포함) |
 | Database | MySQL 8.4 |
 | Frontend | HTML, CSS, JavaScript (fetch API) |
@@ -49,7 +49,7 @@ MySQL이 준비된 뒤 애플리케이션이 시작됩니다.
 |---|---|
 | http://localhost:8080 | 게시판 |
 | http://localhost:8080/swagger-ui.html | Swagger UI (API 문서, 테스트) |
-| http://localhost:8080/api/health | 서버 상태 확인 (`{"status":"UP"}`) |
+| http://localhost:8080/actuator/health | 서버 상태 확인 (Spring Boot Actuator) |
 
 처음에는 데이터가 없으므로 회원가입 후 사용하세요.
 
@@ -153,6 +153,21 @@ GitHub OAuth 2.0 로그인을 사용하려면 각자 GitHub OAuth App을 등록�
 ```json
 { "status": 403, "message": "게시글 작성자만 가능합니다." }
 ```
+
+## 모니터링 (Spring Boot Actuator)
+
+`health`, `info` 엔드포인트만 HTTP로 노출합니다. (`application.yml`의 `management` 설정)
+
+| URL | 설명 |
+|---|---|
+| `/actuator` | 노출된 엔드포인트 목록 |
+| `/actuator/health` | 애플리케이션 상태. DB 연결이 끊기면 `DOWN`(503) |
+| `/actuator/health/liveness` | 프로세스가 살아 있는지 |
+| `/actuator/health/readiness` | 요청을 받을 준비가 되었는지 |
+| `/actuator/info` | 앱 이름, 설명, 빌드 정보(버전, 빌드 시각) |
+
+- 상세 정보(DB, 디스크 등 구성 요소별 상태)는 외부에 표시하지 않습니다. (`show-details: never`)
+- Docker Compose의 `app` 헬스 체크가 `/actuator/health`를 사용합니다. (`docker compose ps`에서 `healthy` 확인)
 
 ## 화면
 
