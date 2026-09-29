@@ -1,5 +1,8 @@
 package com.quackori.oriweb.post;
 
+import java.util.List;
+
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -14,13 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.quackori.oriweb.attachment.AttachmentService;
 import com.quackori.oriweb.auth.AuthService;
 import com.quackori.oriweb.common.PageResponse;
 import com.quackori.oriweb.post.dto.PostRequest;
 import com.quackori.oriweb.post.dto.PostResponse;
 import com.quackori.oriweb.post.dto.PostSummaryResponse;
-
-import org.springdoc.core.annotations.ParameterObject;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +38,7 @@ public class PostController {
 
 	private final PostService postService;
 	private final AuthService authService;
+	private final AttachmentService attachmentService;
 
 	@Operation(summary = "게시글 목록", description = "최신순, 페이지는 0부터 시작합니다. 예: ?page=0&size=10")
 	@GetMapping
@@ -48,20 +51,21 @@ public class PostController {
 	@Operation(summary = "게시글 상세")
 	@GetMapping("/{id}")
 	public PostResponse getPost(@PathVariable Long id) {
-		return PostResponse.from(postService.getPost(id));
+		return PostResponse.from(postService.getPost(id), attachmentService.getAttachments(id));
 	}
 
-	@Operation(summary = "게시글 작성", description = "로그인 필요")
+	@Operation(summary = "게시글 작성", description = "로그인 필요. 첨부파일은 작성 후 /api/posts/{postId}/attachments로 업로드합니다.")
 	@PostMapping
 	public ResponseEntity<PostResponse> create(@Valid @RequestBody PostRequest request, HttpSession session) {
 		Post post = postService.create(request, authService.getLoginUser(session));
-		return ResponseEntity.status(HttpStatus.CREATED).body(PostResponse.from(post));
+		return ResponseEntity.status(HttpStatus.CREATED).body(PostResponse.from(post, List.of()));
 	}
 
 	@Operation(summary = "게시글 수정", description = "작성자만 가능")
 	@PutMapping("/{id}")
 	public PostResponse update(@PathVariable Long id, @Valid @RequestBody PostRequest request, HttpSession session) {
-		return PostResponse.from(postService.update(id, request, authService.getLoginUser(session)));
+		Post post = postService.update(id, request, authService.getLoginUser(session));
+		return PostResponse.from(post, attachmentService.getAttachments(id));
 	}
 
 	@Operation(summary = "게시글 삭제", description = "작성자만 가능")

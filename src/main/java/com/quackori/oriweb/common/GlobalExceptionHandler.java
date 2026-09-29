@@ -6,6 +6,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -32,6 +34,20 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException e) {
 		return ResponseEntity.badRequest()
 				.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "요청 형식이 올바르지 않습니다."));
+	}
+
+	// application.yml의 multipart 크기 제한 초과
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ResponseEntity<ErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException e) {
+		return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+				.body(new ErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE.value(), "파일 크기가 너무 큽니다. (파일당 최대 10MB)"));
+	}
+
+	// multipart 요청에 files 파트가 없을 때
+	@ExceptionHandler(MissingServletRequestPartException.class)
+	public ResponseEntity<ErrorResponse> handleMissingPart(MissingServletRequestPartException e) {
+		return ResponseEntity.badRequest()
+				.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "업로드할 파일을 선택해주세요."));
 	}
 
 }
