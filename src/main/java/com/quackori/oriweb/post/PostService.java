@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.quackori.oriweb.attachment.AttachmentService;
+import com.quackori.oriweb.comment.CommentService;
 import com.quackori.oriweb.common.ApiException;
 import com.quackori.oriweb.post.dto.PostRequest;
 import com.quackori.oriweb.user.User;
@@ -20,6 +21,7 @@ public class PostService {
 
 	private final PostRepository postRepository;
 	private final AttachmentService attachmentService;
+	private final CommentService commentService;
 
 	public Page<Post> getPosts(Pageable pageable) {
 		return postRepository.findAll(pageable);
@@ -47,6 +49,7 @@ public class PostService {
 	@Transactional
 	public void delete(Long id, User loginUser) {
 		Post post = getOwnedPost(id, loginUser);
+		commentService.deleteAllByPost(post);
 		attachmentService.deleteAllByPost(post);
 		postRepository.delete(post);
 	}
