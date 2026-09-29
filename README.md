@@ -11,7 +11,7 @@
 | 구분 | 사용 기술 |
 |---|---|
 | Language | Java 21 |
-| Framework | Spring Boot 3.5 (Spring Web, Spring Data JPA, Validation) |
+| Framework | Spring Boot 3.5 (Spring Web, Spring Data JPA, Validation, Spring Security OAuth2 Client) |
 | Build | Gradle 8.14 (Gradle Wrapper 포함) |
 | Database | MySQL 8.4 |
 | Frontend | HTML, CSS, JavaScript (fetch API) |
@@ -66,6 +66,36 @@ docker compose down
 docker compose down -v
 ```
 
+### GitHub 로그인 설정 (선택)
+
+GitHub OAuth 2.0 로그인을 사용하려면 각자 GitHub OAuth App을 등록해야 합니다.
+설정하지 않아도 일반 회원가입/로그인은 정상 동작하며, 로그인 화면에 GitHub 버튼만 표시되지 않습니다.
+
+1. GitHub → **Settings → Developer settings → OAuth Apps → New OAuth App**
+2. 다음 값을 입력하고 등록합니다.
+
+   | 항목 | 값 |
+   |---|---|
+   | Application name | 자유 (예: OriWeb Local) |
+   | Homepage URL | `http://localhost:8080` |
+   | Authorization callback URL | `http://localhost:8080/login/oauth2/code/github` |
+
+3. 등록 후 **Client ID**를 확인하고, **Generate a new client secret**으로 Client Secret을 발급합니다.
+4. 프로젝트 폴더에서 `.env.example`을 복사해 `.env` 파일을 만들고 값을 입력합니다.
+
+   ```
+   GITHUB_CLIENT_ID=발급받은_Client_ID
+   GITHUB_CLIENT_SECRET=발급받은_Client_Secret
+   ```
+
+5. 다시 실행합니다.
+
+   ```bash
+   docker compose up --build -d
+   ```
+
+> `.env` 파일은 `.gitignore`에 포함되어 Git에 올라가지 않습니다. Client Secret을 코드나 커밋에 넣지 마세요.
+
 ### 포트와 계정 정보
 
 | 서비스 | 컨테이너 | 포트 | 비고 |
@@ -82,6 +112,7 @@ docker compose down -v
 | 구분 | 기능 |
 |---|---|
 | 사용자 인증 | 회원가입, 로그인, 로그아웃 (HttpSession 기반 세션 인증, `JSESSIONID` 쿠키) |
+| OAuth 2.0 | GitHub 로그인 (Spring Security OAuth2 Client, Authorization Code 방식). 최초 로그인 시 자동 가입 |
 | 게시글 | 목록(페이징), 상세, 작성, 수정, 삭제 |
 | 첨부파일 | 게시글에 여러 파일 업로드(파일당 최대 10MB), 원본 파일명으로 다운로드, 삭제 |
 | 댓글 | 작성, 수정, 삭제 |
@@ -100,6 +131,9 @@ docker compose down -v
 | | POST | `/api/auth/login` | 로그인 (세션 생성) | - |
 | | POST | `/api/auth/logout` | 로그아웃 (세션 삭제) | - |
 | | GET | `/api/auth/me` | 로그인 사용자 조회 | 로그인 |
+| | GET | `/api/auth/oauth-providers` | GitHub 로그인 사용 가능 여부 | - |
+| OAuth | GET | `/oauth2/authorization/github` | GitHub 인증 페이지로 이동 (브라우저) | - |
+| | GET | `/login/oauth2/code/github` | GitHub 인증 후 콜백 (세션 생성 후 `/`로 이동) | - |
 | Post | GET | `/api/posts?page=0&size=10` | 게시글 목록 (최신순) | - |
 | | GET | `/api/posts/{id}` | 게시글 상세 (첨부파일 목록 포함) | - |
 | | POST | `/api/posts` | 게시글 작성 | 로그인 |
@@ -136,7 +170,7 @@ docker compose down -v
 
 | 테이블 | 주요 컬럼 |
 |---|---|
-| `users` | id, username, password(BCrypt), created_at |
+| `users` | id, username, password(BCrypt), provider, provider_id, created_at |
 | `posts` | id, title, content, author_id → users, created_at, updated_at |
 | `comments` | id, post_id → posts, author_id → users, content, created_at, updated_at |
 | `attachments` | id, post_id → posts, original_name, stored_name(UUID), size, content_type, created_at |
@@ -147,7 +181,8 @@ docker compose down -v
 
 ```
 src/main/java/com/quackori/oriweb
-├─ auth/         # 회원가입, 로그인, 로그아웃, 세션
+├─ auth/         # 회원가입, 로그인, 로그아웃, 세션, Spring Security 설정
+│  └─ oauth/     # GitHub OAuth 2.0 로그인 처리
 ├─ user/         # 사용자 엔티티
 ├─ post/         # 게시글
 ├─ attachment/   # 첨부파일 업로드/다운로드, 파일 저장소

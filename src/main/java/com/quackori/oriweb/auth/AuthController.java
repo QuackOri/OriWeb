@@ -1,5 +1,8 @@
 package com.quackori.oriweb.auth;
 
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,15 +21,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Auth", description = "회원가입 / 로그인 / 로그아웃 (세션 인증)")
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
 	private final AuthService authService;
+	private final String githubClientId;
+
+	public AuthController(AuthService authService,
+			@Value("${spring.security.oauth2.client.registration.github.client-id}") String githubClientId) {
+		this.authService = authService;
+		this.githubClientId = githubClientId;
+	}
 
 	@Operation(summary = "회원가입")
 	@PostMapping("/signup")
@@ -59,6 +67,13 @@ public class AuthController {
 			session.invalidate();
 		}
 		return ResponseEntity.noContent().build();
+	}
+
+	@Operation(summary = "OAuth 로그인 사용 가능 여부",
+			description = "GitHub OAuth App이 설정되어 있으면 github: true. 로그인은 브라우저에서 /oauth2/authorization/github 로 이동합니다.")
+	@GetMapping("/oauth-providers")
+	public Map<String, Boolean> oauthProviders() {
+		return Map.of("github", !"unset".equals(githubClientId));
 	}
 
 	@Operation(summary = "내 정보 조회", description = "현재 세션의 로그인 사용자를 반환합니다. 로그인하지 않았으면 401.")

@@ -33,6 +33,9 @@ services:
       DB_PASSWORD: oriweb
       UPLOAD_DIR: /app/uploads
       TZ: Asia/Seoul
+      # GitHub OAuth 로그인 (선택). .env 파일에 값을 넣으면 적용됨 (.env.example 참고)
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-unset}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-unset}
     ports:
       - "127.0.0.1:8080:8080"
     volumes:

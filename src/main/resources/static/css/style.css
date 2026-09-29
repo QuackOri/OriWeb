@@ -54,6 +54,7 @@ button, .button {
   font: inherit;
   cursor: pointer;
 }
+form.box .button { text-align: center; }
 button:hover, .button:hover { background: #e8e8e8; text-decoration: none; }
 button.primary { background: #1a56c4; border-color: #1a56c4; color: #fff; }
 button.danger { color: #c0392b; border-color: #c0392b; background: #fff; }

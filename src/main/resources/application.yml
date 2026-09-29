@@ -21,6 +21,16 @@ spring:
       pageable:
         max-page-size: 100
 
+  # GitHub OAuth App 정보는 환경변수(.env)로만 주입. 설정하지 않으면 GitHub 로그인 버튼이 숨겨짐
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID:unset}
+            client-secret: ${GITHUB_CLIENT_SECRET:unset}
+            scope: read:user
+
   servlet:
     multipart:
       max-file-size: 10MB

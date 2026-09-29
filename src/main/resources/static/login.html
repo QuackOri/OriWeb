@@ -16,6 +16,7 @@
       <input type="password" id="password" autocomplete="current-password" required>
       <p class="error" id="error"></p>
       <button type="submit" class="primary">로그인</button>
+      <a class="button" href="/oauth2/authorization/github" id="github-login" hidden>GitHub로 로그인</a>
       <p class="muted">계정이 없으신가요? <a href="/signup.html">회원가입</a></p>
     </form>
   </main>
@@ -23,6 +24,15 @@
   <script src="/js/common.js"></script>
   <script>
     renderHeader();
+
+    // GitHub OAuth App이 설정된 경우에만 버튼 표시
+    api('GET', '/api/auth/oauth-providers')
+      .then(providers => { document.getElementById('github-login').hidden = !providers.github; })
+      .catch(() => {});
+
+    if (getParam('error') === 'oauth') {
+      document.getElementById('error').textContent = 'GitHub 로그인에 실패했습니다.';
+    }
 
     document.getElementById('login-form').onsubmit = async (event) => {
       event.preventDefault();
