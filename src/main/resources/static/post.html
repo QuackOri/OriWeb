@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OriWeb - 게시글</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main>
+    <h1 id="title"></h1>
+    <div class="meta" id="meta"></div>
+    <div class="content" id="content"></div>
+
+    <section id="attachment-section" hidden>
+      <h2>첨부파일</h2>
+      <ul class="plain" id="attachment-list"></ul>
+    </section>
+
+    <div class="actions">
+      <a class="button" href="/">목록</a>
+      <span id="owner-actions" hidden>
+        <a class="button" id="edit-button">수정</a>
+        <button class="danger" id="delete-button">삭제</button>
+      </span>
+    </div>
+
+    <section>
+      <h2>댓글 <span class="muted" id="comment-count"></span></h2>
+      <div id="comment-list"></div>
+      <form id="comment-form" hidden>
+        <textarea id="comment-content" placeholder="댓글을 입력하세요" required></textarea>
+        <p class="error" id="comment-error"></p>
+        <button type="submit" class="primary">댓글 작성</button>
+      </form>
+      <p class="muted" id="comment-login" hidden><a href="#" id="comment-login-link">로그인</a> 후 댓글을 작성할 수 있습니다.</p>
+    </section>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    const postId = getParam('id');
+    let me = null;
+
+    async function loadPost() {
+      let post;
+      try {
+        post = await api('GET', `/api/posts/${postId}`);
+      } catch (e) {
+        alert(e.message);
+        location.href = '/';
+        return;
+      }
+
+      document.title = `OriWeb - ${post.title}`;
+      document.getElementById('title').textContent = post.title;
+      document.getElementById('meta').textContent =
+        `${post.authorUsername} · ${formatDate(post.createdAt)}` +
+        (isEdited(post) ? ` (수정 ${formatDate(post.updatedAt)})` : '');
+      document.getElementById('content').textContent = post.content;
+
+      const list = document.getElementById('attachment-list');
+      document.getElementById('attachment-section').hidden = post.attachments.length === 0;
+      for (const file of post.attachments) {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = `/api/attachments/${file.id}/download`;
+        link.textContent = file.originalName;
+        const size = document.createElement('span');
+        size.className = 'muted';
+        size.textContent = formatSize(file.size);
+        li.append(link, size);
+        list.append(li);
+      }
+
+      if (me && me.id === post.authorId) {
+        document.getElementById('owner-actions').hidden = false;
+        document.getElementById('edit-button').href = `/write.html?id=${post.id}`;
+        document.getElementById('delete-button').onclick = async () => {
+          if (!confirm('게시글을 삭제할까요? 첨부파일과 댓글도 함께 삭제됩니다.')) return;
+          try {
+            await api('DELETE', `/api/posts/${post.id}`);
+            location.href = '/';
+          } catch (e) {
+            alert(e.message);
+          }
+        };
+      }
+    }
+
+    async function loadComments() {
+      const comments = await api('GET', `/api/posts/${postId}/comments`);
+      document.getElementById('comment-count').textContent = comments.length;
+      const list = document.getElementById('comment-list');
+      list.innerHTML = '';
+      for (const comment of comments) {
+        list.append(renderComment(comment));
+      }
+    }
+
+    function renderComment(comment) {
+      const div = document.createElement('div');
+      div.className = 'comment';
+      div.innerHTML = `
+        <div class="head"><strong></strong><span class="date"></span></div>
+        <div class="body"></div>`;
+      div.querySelector('strong').textContent = comment.authorUsername;
+      div.querySelector('.date').textContent =
+        formatDate(comment.createdAt) + (isEdited(comment) ? ' (수정됨)' : '');
+      const body = div.querySelector('.body');
+      body.textContent = comment.content;
+
+      if (me && me.id === comment.authorId) {
+        const head = div.querySelector('.head');
+        const edit = document.createElement('button');
+        edit.className = 'link';
+        edit.textContent = '수정';
+        const remove = document.createElement('button');
+        remove.className = 'link';
+        remove.textContent = '삭제';
+        head.append(edit, remove);
+
+        edit.onclick = () => {
+          // 댓글 본문을 수정 입력창으로 바꿈
+          const textarea = document.createElement('textarea');
+          textarea.value = comment.content;
+          const save = document.createElement('button');
+          save.className = 'primary';
+          save.textContent = '저장';
+          const cancel = document.createElement('button');
+          cancel.textContent = '취소';
+          const box = document.createElement('div');
+          box.append(textarea, save, cancel);
+          body.replaceWith(box);
+
+          cancel.onclick = () => box.replaceWith(body);
+          save.onclick = async () => {
+            try {
+              await api('PUT', `/api/comments/${comment.id}`, { content: textarea.value });
+              await loadComments();
+            } catch (e) {
+              alert(e.message);
+            }
+          };
+        };
+
+        remove.onclick = async () => {
+          if (!confirm('댓글을 삭제할까요?')) return;
+          try {
+            await api('DELETE', `/api/comments/${comment.id}`);
+            await loadComments();
+          } catch (e) {
+            alert(e.message);
+          }
+        };
+      }
+      return div;
+    }
+
+    (async () => {
+      me = await renderHeader();
+      await loadPost();
+      await loadComments();
+
+      if (me) {
+        document.getElementById('comment-form').hidden = false;
+      } else {
+        document.getElementById('comment-login').hidden = false;
+        document.getElementById('comment-login-link').href =
+          `/login.html?redirect=${encodeURIComponent(location.pathname + location.search)}`;
+      }
+
+      document.getElementById('comment-form').onsubmit = async (event) => {
+        event.preventDefault();
+        const textarea = document.getElementById('comment-content');
+        const error = document.getElementById('comment-error');
+        try {
+          await api('POST', `/api/posts/${postId}/comments`, { content: textarea.value });
+          textarea.value = '';
+          error.textContent = '';
+          await loadComments();
+        } catch (e) {
+          error.textContent = e.message;
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

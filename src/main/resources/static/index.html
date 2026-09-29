@@ -3,14 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OriWeb</title>
+  <title>OriWeb - 게시판</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <h1>OriWeb</h1>
-  <p>게시판 화면은 준비 중입니다.</p>
-  <ul>
-    <li><a href="/api/health">/api/health</a></li>
-    <li><a href="/swagger-ui.html">Swagger UI</a></li>
-  </ul>
+  <main>
+    <h1>게시판</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="num">번호</th>
+          <th>제목</th>
+          <th class="author">작성자</th>
+          <th class="date">작성일</th>
+        </tr>
+      </thead>
+      <tbody id="post-list"></tbody>
+    </table>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="actions">
+      <a class="button" href="/write.html" id="write-button" hidden>글쓰기</a>
+    </div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    (async () => {
+      const me = await renderHeader();
+      if (me) document.getElementById('write-button').hidden = false;
+
+      const page = Number(getParam('page') || 0);
+      const data = await api('GET', `/api/posts?page=${page}&size=10`);
+
+      const tbody = document.getElementById('post-list');
+      if (data.content.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="muted">게시글이 없습니다.</td></tr>';
+      }
+      for (const post of data.content) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="num"></td>
+          <td><a></a></td>
+          <td class="author"></td>
+          <td class="date"></td>`;
+        tr.children[0].textContent = post.id;
+        tr.querySelector('a').textContent = post.title;
+        tr.querySelector('a').href = `/post.html?id=${post.id}`;
+        tr.children[2].textContent = post.authorUsername;
+        tr.children[3].textContent = formatDate(post.createdAt);
+        tbody.append(tr);
+      }
+
+      const pagination = document.getElementById('pagination');
+      for (let i = 0; i < data.totalPages; i++) {
+        const link = document.createElement(i === page ? 'span' : 'a');
+        link.textContent = i + 1;
+        if (i === page) link.className = 'current';
+        else link.href = `/?page=${i}`;
+        pagination.append(link);
+      }
+    })();
+  </script>
 </body>
 </html>

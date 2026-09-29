@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OriWeb - 로그인</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main>
+    <h1>로그인</h1>
+    <form class="box" id="login-form">
+      <label for="username">아이디</label>
+      <input type="text" id="username" autocomplete="username" required>
+      <label for="password">비밀번호</label>
+      <input type="password" id="password" autocomplete="current-password" required>
+      <p class="error" id="error"></p>
+      <button type="submit" class="primary">로그인</button>
+      <p class="muted">계정이 없으신가요? <a href="/signup.html">회원가입</a></p>
+    </form>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    renderHeader();
+
+    document.getElementById('login-form').onsubmit = async (event) => {
+      event.preventDefault();
+      try {
+        await api('POST', '/api/auth/login', {
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value,
+        });
+        // 같은 사이트 내부 경로로만 돌아감
+        const redirect = getParam('redirect');
+        location.href = redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/';
+      } catch (e) {
+        document.getElementById('error').textContent = e.message;
+      }
+    };
+  </script>
+</body>
+</html>
