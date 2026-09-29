@@ -1,0 +1,46 @@
+# 교육용 취약 애플리케이션: 포트는 127.0.0.1에만 바인딩해서 외부 노출을 막음
+# DB 계정/비밀번호는 로컬 실습용 더미 값
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: oriweb-db
+    environment:
+      MYSQL_DATABASE: oriweb
+      MYSQL_USER: oriweb
+      MYSQL_PASSWORD: oriweb
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uoriweb", "-poriweb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    container_name: oriweb-app
+    environment:
+      DB_URL: jdbc:mysql://db:3306/oriweb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      DB_USERNAME: oriweb
+      DB_PASSWORD: oriweb
+      UPLOAD_DIR: /app/uploads
+      TZ: Asia/Seoul
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - upload-data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  upload-data:
