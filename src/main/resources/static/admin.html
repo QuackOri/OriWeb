@@ -36,7 +36,8 @@
 
     async function changeRole(user) {
       const next = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
-      if (!confirm(`${user.username}의 권한을 ${next}(으)로 바꿀까요?`)) return;
+      const action = next === 'ADMIN' ? '관리자로 승격' : '일반 사용자로 강등';
+      if (!confirm(`${user.username}을(를) ${action}할까요?`)) return;
       try {
         await api('PATCH', `/api/admin/users/${user.id}/role`, { role: next });
         await loadUsers();
@@ -85,7 +86,7 @@
         } else {
           const role = document.createElement('button');
           role.className = 'link';
-          role.textContent = user.role === 'ADMIN' ? 'USER로' : 'ADMIN으로';
+          role.textContent = user.role === 'ADMIN' ? '일반 사용자로 강등' : '관리자로 승격';
           role.onclick = () => changeRole(user);
           const suspend = document.createElement('button');
           suspend.className = 'link';
