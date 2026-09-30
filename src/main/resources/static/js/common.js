@@ -1,8 +1,8 @@
-// 모든 페이지에서 공통으로 쓰는 API 호출, 헤더, 유틸 함수
+// Shared API calls, header and utilities used by every page
 
 /**
- * API 호출. 실패하면 서버의 {"status", "message"} 응답으로 Error를 던진다.
- * body가 FormData면 multipart로, 객체면 JSON으로 보낸다.
+ * Calls the API. On failure, throws an Error built from the server's {"status", "message"} response.
+ * Sends FormData as multipart and plain objects as JSON.
  */
 async function api(method, url, body) {
   const options = { method, headers: {} };
@@ -26,7 +26,7 @@ async function api(method, url, body) {
   return data;
 }
 
-/** 로그인 사용자 조회. 로그인하지 않았으면 null. */
+/** Returns the logged-in user, or null if not logged in. */
 async function getMe() {
   try {
     return await api('GET', '/api/auth/me');
@@ -35,17 +35,17 @@ async function getMe() {
   }
 }
 
-/** 상단 헤더를 그리고 로그인 사용자를 반환한다. */
+/** Renders the page header and returns the logged-in user. */
 async function renderHeader() {
   const me = await getMe();
 
-  // 브라우저 탭 아이콘 (오리 얼굴)
+  // Browser tab icon (duck)
   const icon = document.createElement('link');
   icon.rel = 'icon';
   icon.href = '/images/duck-o.svg';
   document.head.append(icon);
 
-  // 로고의 O 자리에 오리, 그 뒤를 "riWeb 게시판" 글자가 따라감
+  // The duck replaces the "O" of the logo, followed by the rest of the logo text
   const header = document.createElement('header');
   header.className = 'site-header';
   header.innerHTML = `
@@ -72,7 +72,7 @@ async function renderHeader() {
       await api('POST', '/api/auth/logout');
       location.href = '/';
     };
-    // 관리자에게만 Admin 메뉴 표시 (실제 권한 확인은 서버에서)
+    // Show the Admin menu to admins only (the server enforces the actual permission)
     if (isAdmin(me)) {
       const admin = document.createElement('a');
       admin.href = '/admin.html';
@@ -87,17 +87,17 @@ async function renderHeader() {
       <a href="/signup.html"><img class="pad" src="/images/lily-pad.svg" alt="">Join</a>`;
   }
 
-  // 게시판과 같은 폭 안(main 맨 위)에 배치
+  // Place the header inside the board width (top of main)
   document.querySelector('main').prepend(header);
   return me;
 }
 
-// 미운 오리 새끼 모티브: 일반 사용자는 거위 무리, 관리자는 해커 오리
+// "The Ugly Duckling" motif: regular users are geese, admins are the hacker duck
 const AVATARS = ['goose-relax', 'goose-write', 'goose-coffee', 'goose-read', 'goose-wave', 'goose-walk'];
 
 /**
- * 프로필 그림. 관리자는 해커 오리, 일반 사용자는 거위 그림 중 하나.
- * 사용자 ID로 골라서 같은 사람은 항상 같은 거위가 나온다.
+ * Profile picture: the hacker duck for admins, one of the geese for regular users.
+ * Picked by user ID so the same user always gets the same goose.
  */
 function isAdmin(user) {
   return !!user && user.role === 'ADMIN';
@@ -110,7 +110,7 @@ function avatarOf(user) {
   return `/images/avatars/${AVATARS[user.id % AVATARS.length]}.svg`;
 }
 
-/** 로그인이 필요한 페이지에서 호출. 로그인하지 않았으면 로그인 페이지로 이동. */
+/** Call on pages that require login. Redirects to the login page if not logged in. */
 function requireLogin(me) {
   if (!me) {
     alert('로그인이 필요합니다.');
@@ -128,7 +128,7 @@ function formatDate(value) {
   return value ? value.replace('T', ' ').substring(0, 16) : '';
 }
 
-/** 숫자를 로마 숫자로 변환 (1~3999). 범위를 벗어나면 그대로 반환. 예: 9 → IX */
+/** Converts a number to Roman numerals (1-3999). Returns it unchanged if out of range. e.g. 9 -> IX */
 function toRoman(num) {
   if (!Number.isInteger(num) || num < 1 || num > 3999) return String(num);
   const table = [
@@ -145,7 +145,7 @@ function toRoman(num) {
   return result;
 }
 
-/** 생성 직후에도 수정 시각이 미세하게 다르므로 1초 넘게 차이 날 때만 수정된 것으로 본다. */
+/** updatedAt differs slightly from createdAt even right after creation, so only treat 1s+ differences as edits. */
 function isEdited(item) {
   return new Date(item.updatedAt) - new Date(item.createdAt) > 1000;
 }

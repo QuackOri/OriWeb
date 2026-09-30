@@ -66,7 +66,7 @@
       const me = await renderHeader();
       if (!requireLogin(me)) return;
 
-      // 수정 모드: 기존 글 불러오기
+      // Edit mode: load the existing post
       if (postId) {
         const post = await api('GET', `/api/posts/${postId}`);
         if (post.authorId !== me.id) {
@@ -94,7 +94,7 @@
 
         submit.disabled = true;
         try {
-          // 1) 게시글 저장 → 2) 선택한 파일이 있으면 첨부파일 업로드
+          // 1) Save the post -> 2) upload attachments if any files are selected
           const post = postId
             ? await api('PUT', `/api/posts/${postId}`, body)
             : await api('POST', '/api/posts', body);

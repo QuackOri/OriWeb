@@ -57,7 +57,7 @@
         (isEdited(post) ? ` (수정 ${formatDate(post.updatedAt)})` : '');
       document.getElementById('content').textContent = post.content;
 
-      // 수정은 작성자만, 삭제는 작성자 또는 관리자 (실제 권한 확인은 서버에서)
+      // Edit: author only. Delete: author or admin (the server enforces the actual permission)
       const isAuthor = me && me.id === post.authorId;
       const canDelete = isAuthor || isAdmin(me);
 
@@ -133,7 +133,7 @@
       const body = div.querySelector('.body');
       body.textContent = comment.content;
 
-      // 수정은 댓글 작성자만, 삭제는 댓글 작성자 또는 관리자
+      // Edit: comment author only. Delete: comment author or admin
       const isAuthor = me && me.id === comment.authorId;
       const head = div.querySelector('.head');
 
@@ -144,7 +144,7 @@
         head.append(edit);
 
         edit.onclick = () => {
-          // 댓글 본문을 수정 입력창으로 바꿈
+          // Replace the comment body with an edit box
           const textarea = document.createElement('textarea');
           textarea.value = comment.content;
           const save = document.createElement('button');

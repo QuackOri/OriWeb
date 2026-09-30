@@ -39,7 +39,7 @@ public class AdminService {
 		return target;
 	}
 
-	/** 관리자가 0명이 되는 사고를 막기 위해 자기 자신은 대상으로 할 수 없다. */
+	/** Admins cannot target themselves, to avoid ending up with no admins. */
 	private User getOtherUser(Long userId, User admin, String selfMessage) {
 		if (admin.getId().equals(userId)) {
 			throw new ApiException(HttpStatus.BAD_REQUEST, selfMessage);

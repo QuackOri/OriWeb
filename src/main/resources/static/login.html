@@ -25,7 +25,7 @@
   <script>
     renderHeader();
 
-    // GitHub OAuth App이 설정된 경우에만 버튼 표시
+    // Show the button only when a GitHub OAuth App is configured
     api('GET', '/api/auth/oauth-providers')
       .then(providers => { document.getElementById('github-login').hidden = !providers.github; })
       .catch(() => {});
@@ -43,7 +43,7 @@
           username: document.getElementById('username').value,
           password: document.getElementById('password').value,
         });
-        // 같은 사이트 내부 경로로만 돌아감
+        // Only redirect back to a path on this site
         const redirect = getParam('redirect');
         location.href = redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/';
       } catch (e) {

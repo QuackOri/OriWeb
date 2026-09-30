@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 14" preserveAspectRatio="none">
-  <!-- 가로로 반복되는 잡초 한 칸. 꼭짓점이 줄에 닿는 V자 풀잎을 크기와 간격을 다르게 배치 -->
+  <!-- One horizontally repeated tile of grass: V-shaped blades touching the line, with varied size and spacing -->
   <g fill="none" stroke="#39ff14" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14 6 L17 13 L20 4"/>
     <path d="M92 3 L95 13 L97 7 L99 13 L102 2"/>

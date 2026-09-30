@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.quackori.oriweb.common.ApiException;
@@ -40,7 +41,7 @@ class AdminServiceTest {
 	}
 
 	@Test
-	void 다른_사용자의_권한을_변경할_수_있다() {
+	void changeRole_changesAnotherUsersRole() {
 		User target = user(2L, "tester");
 		given(userRepository.findById(2L)).willReturn(Optional.of(target));
 
@@ -50,14 +51,14 @@ class AdminServiceTest {
 	}
 
 	@Test
-	void 자기_자신의_권한은_변경할_수_없다() {
+	void changeRole_rejectsSelf() {
 		assertThatThrownBy(() -> adminService.changeRole(1L, Role.USER, admin(1L)))
 				.isInstanceOf(ApiException.class)
-				.hasMessageContaining("자기 자신");
+				.satisfies(e -> assertThat(((ApiException) e).getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
 	}
 
 	@Test
-	void 다른_사용자를_정지하고_해제할_수_있다() {
+	void changeSuspended_suspendsAndRestoresAnotherUser() {
 		User target = user(2L, "tester");
 		given(userRepository.findById(2L)).willReturn(Optional.of(target));
 
@@ -69,10 +70,10 @@ class AdminServiceTest {
 	}
 
 	@Test
-	void 자기_자신은_정지할_수_없다() {
+	void changeSuspended_rejectsSelf() {
 		assertThatThrownBy(() -> adminService.changeSuspended(1L, true, admin(1L)))
 				.isInstanceOf(ApiException.class)
-				.hasMessageContaining("자기 자신");
+				.satisfies(e -> assertThat(((ApiException) e).getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
 	}
 
 }

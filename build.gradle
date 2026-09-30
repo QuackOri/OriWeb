@@ -13,7 +13,7 @@ java {
 	}
 }
 
-// /actuator/info에 빌드 정보(이름, 버전, 빌드 시각) 표시
+// Show build info (name, version, build time) at /actuator/info
 springBoot {
 	buildInfo()
 }

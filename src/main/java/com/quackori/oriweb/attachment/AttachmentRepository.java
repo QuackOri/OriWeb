@@ -10,7 +10,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
 
 	List<Attachment> findByPostIdOrderByIdAsc(Long postId);
 
-	// 삭제 권한 확인 시 게시글 작성자까지 필요
+	// The post author is needed to check delete permission
 	@Override
 	@EntityGraph(attributePaths = {"post", "post.author"})
 	Optional<Attachment> findById(Long id);

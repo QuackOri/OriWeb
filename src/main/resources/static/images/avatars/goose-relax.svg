@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="여유로운 거위">
-  <!-- 물 위에 둥둥 떠서 눈 감고 콧노래 -->
+  <!-- Floating on water, eyes closed, humming -->
   <path d="M46 7 C51 7 54 10 54 14 C54 18 51 20 48 21 C46 26 45 32 46 36 C52 40 52 52 42 56 C32 60 18 58 12 50 L4 40 C12 40 18 34 26 33 C34 32 38 30 39 26 C40 20 38 12 41 9 C42 8 44 7 46 7 Z" fill="#f7f7f2" stroke="#141414" stroke-width="2" stroke-linejoin="round"/>
   <path d="M20 42 C26 36 38 36 42 44 C34 50 24 50 20 42 Z" fill="#e2e2dc" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>
   <path d="M53 12 C58 12 62 14 62 16 C60 18 56 18 53 17 Z" fill="#ff9a1f" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>

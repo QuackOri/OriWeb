@@ -18,7 +18,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	@EntityGraph(attributePaths = "author")
 	Optional<Comment> findById(Long id);
 
-	// 게시글 삭제 시 댓글을 한 번의 쿼리로 삭제
+	// Delete all comments of a post in a single query (used when deleting the post)
 	@Modifying
 	@Query("delete from Comment c where c.post.id = :postId")
 	void deleteByPostId(@Param("postId") Long postId);

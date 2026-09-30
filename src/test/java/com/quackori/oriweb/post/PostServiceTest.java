@@ -35,22 +35,22 @@ class PostServiceTest {
 	@InjectMocks
 	private PostService postService;
 
-	private final PostRequest request = new PostRequest("제목", "내용");
+	private final PostRequest request = new PostRequest("title", "content");
 	private final User user = new User("tester", "hash");
 
 	@Test
-	void 게시글이_최대_개수_미만이면_작성된다() {
+	void create_savesPostWhenBelowLimit() {
 		given(postRepository.count()).willReturn(PostService.MAX_POSTS - 1);
 		given(postRepository.save(any(Post.class))).willAnswer(invocation -> invocation.getArgument(0));
 
 		Post post = postService.create(request, user);
 
-		assertThat(post.getTitle()).isEqualTo("제목");
+		assertThat(post.getTitle()).isEqualTo("title");
 		verify(postRepository).save(any(Post.class));
 	}
 
 	@Test
-	void 게시글이_최대_개수에_도달하면_409로_거부된다() {
+	void create_rejectsWith409WhenLimitReached() {
 		given(postRepository.count()).willReturn(PostService.MAX_POSTS);
 
 		assertThatThrownBy(() -> postService.create(request, user))

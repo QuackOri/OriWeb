@@ -11,8 +11,8 @@ import org.springframework.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 앱 시작 시 관리자 계정을 만든다.
- * ADMIN_USERNAME, ADMIN_PASSWORD 환경변수(.env)가 모두 있고, 같은 아이디의 계정이 아직 없을 때만 생성한다.
+ * Creates the admin account on application startup.
+ * Only runs when both ADMIN_USERNAME and ADMIN_PASSWORD (.env) are set and no account with that username exists yet.
  */
 @Slf4j
 @Component
@@ -36,22 +36,22 @@ public class AdminInitializer implements ApplicationRunner {
 	@Transactional
 	public void run(ApplicationArguments args) {
 		if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
-			log.info("관리자 계정 설정(ADMIN_USERNAME, ADMIN_PASSWORD)이 없어 관리자 계정을 만들지 않습니다.");
+			log.info("ADMIN_USERNAME / ADMIN_PASSWORD not set; skipping admin account creation.");
 			return;
 		}
 		if (!username.matches("^[a-zA-Z0-9]{4,20}$") || password.length() < 4) {
-			log.warn("관리자 계정 설정이 규칙(아이디 영문/숫자 4~20자, 비밀번호 4자 이상)에 맞지 않아 만들지 않습니다.");
+			log.warn("Admin settings are invalid (username: 4-20 letters/digits, password: 4+ chars); skipping admin account creation.");
 			return;
 		}
 		userRepository.findByUsername(username).ifPresentOrElse(
 				user -> {
 					if (!user.isAdmin()) {
-						log.warn("'{}'은(는) 이미 일반 사용자 아이디라 관리자로 만들지 않습니다. 다른 아이디를 사용하세요.", username);
+						log.warn("'{}' is already used by a regular user; not promoting it to admin. Use a different username.", username);
 					}
 				},
 				() -> {
 					userRepository.save(User.ofAdmin(username, passwordEncoder.encode(password)));
-					log.info("관리자 계정 '{}'을(를) 만들었습니다.", username);
+					log.info("Created admin account '{}'.", username);
 				});
 	}
 

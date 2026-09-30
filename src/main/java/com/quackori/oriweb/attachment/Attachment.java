@@ -33,11 +33,11 @@ public class Attachment {
 	@JoinColumn(name = "post_id", nullable = false)
 	private Post post;
 
-	/** 사용자가 올린 원래 파일명 (다운로드 시 이 이름으로 내려줌) */
+	/** Original file name uploaded by the user (used as the download file name) */
 	@Column(nullable = false)
 	private String originalName;
 
-	/** 업로드 폴더에 실제 저장된 파일명 (UUID) */
+	/** File name actually stored in the upload directory (UUID) */
 	@Column(nullable = false, unique = true)
 	private String storedName;
 

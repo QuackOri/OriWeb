@@ -32,7 +32,7 @@ public class AttachmentService {
 				.orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "첨부파일을 찾을 수 없습니다."));
 	}
 
-	/** 게시글에 파일을 첨부한다. 게시글 작성자 확인은 호출하는 쪽(PostService)에서 한다. */
+	/** Attaches files to the post. The caller (PostService) checks that the user is the post author. */
 	@Transactional
 	public List<Attachment> upload(Post post, List<MultipartFile> files) {
 		if (files == null || files.stream().allMatch(MultipartFile::isEmpty)) {
@@ -62,7 +62,7 @@ public class AttachmentService {
 		fileStorage.delete(attachment.getStoredName());
 	}
 
-	/** 게시글 삭제 시 첨부파일(DB + 실제 파일)을 함께 삭제한다. */
+	/** Deletes all attachments of the post (DB rows and files); used when deleting the post. */
 	@Transactional
 	public void deleteAllByPost(Post post) {
 		List<Attachment> attachments = attachmentRepository.findByPostIdOrderByIdAsc(post.getId());

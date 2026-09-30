@@ -48,7 +48,7 @@ public class AuthController {
 	public UserResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
 		User user = authService.login(request);
 
-		// 기존 세션을 버리고 새 세션 발급 (세션 고정 방지)
+		// Discard the old session and issue a new one (session fixation protection)
 		HttpSession oldSession = httpRequest.getSession(false);
 		if (oldSession != null) {
 			oldSession.invalidate();

@@ -44,9 +44,9 @@ public class AuthService {
 	}
 
 	/**
-	 * 세션에서 로그인 사용자를 조회한다. 로그인하지 않았으면 401 예외.
-	 * 게시글, 댓글 등 로그인이 필요한 기능에서 공통으로 사용한다.
-	 * 로그인 중에 정지된 계정이면 세션을 끊고 403 예외.
+	 * Returns the logged-in user from the session. Throws 401 if not logged in.
+	 * Shared by all features that require login (posts, comments, ...).
+	 * If the account was suspended while logged in, invalidates the session and throws 403.
 	 */
 	public User getLoginUser(HttpSession session) {
 		Object userId = session.getAttribute(SessionConst.LOGIN_USER_ID);
@@ -62,7 +62,7 @@ public class AuthService {
 		return user;
 	}
 
-	/** 관리자만 허용. 로그인하지 않았으면 401, 관리자가 아니면 403. */
+	/** Allows admins only. Throws 401 if not logged in, 403 if not an admin. */
 	public User getAdmin(HttpSession session) {
 		User user = getLoginUser(session);
 		if (!user.isAdmin()) {

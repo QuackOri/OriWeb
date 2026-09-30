@@ -3,7 +3,7 @@ package com.quackori.oriweb.post.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/** 게시글 작성/수정 요청 */
+/** Request for creating or updating a post */
 public record PostRequest(
 		@NotBlank(message = "제목을 입력해주세요.")
 		@Size(max = 200, message = "제목은 200자 이하입니다.")

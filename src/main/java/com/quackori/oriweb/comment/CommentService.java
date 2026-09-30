@@ -33,7 +33,7 @@ public class CommentService {
 	public Comment update(Long id, CommentRequest request, User loginUser) {
 		Comment comment = getOwnedComment(id, loginUser);
 		comment.update(request.content());
-		// 수정 시각(@UpdateTimestamp)이 응답에 반영되도록 즉시 반영
+		// Flush now so the updated timestamp (@UpdateTimestamp) is included in the response
 		commentRepository.flush();
 		return comment;
 	}
@@ -41,14 +41,14 @@ public class CommentService {
 	@Transactional
 	public void delete(Long id, User loginUser) {
 		Comment comment = getComment(id);
-		// 삭제는 작성자 또는 관리자 (수정은 작성자만)
+		// Delete: author or admin (edit: author only)
 		if (!comment.isWrittenBy(loginUser) && !loginUser.isAdmin()) {
 			throw new ApiException(HttpStatus.FORBIDDEN, "댓글 작성자 또는 관리자만 삭제할 수 있습니다.");
 		}
 		commentRepository.delete(comment);
 	}
 
-	/** 게시글 삭제 시 댓글을 함께 삭제한다. */
+	/** Deletes all comments of the post (used when deleting the post). */
 	@Transactional
 	public void deleteAllByPost(Post post) {
 		commentRepository.deleteByPostId(post.getId());

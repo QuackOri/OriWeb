@@ -1,5 +1,5 @@
-# 교육용 취약 애플리케이션: 포트는 127.0.0.1에만 바인딩해서 외부 노출을 막음
-# DB 계정/비밀번호는 로컬 실습용 더미 값
+# Intentionally vulnerable training app: ports are bound to 127.0.0.1 only to prevent external exposure
+# DB credentials are dummy values for local practice only
 
 services:
   db:
@@ -33,10 +33,10 @@ services:
       DB_PASSWORD: oriweb
       UPLOAD_DIR: /app/uploads
       TZ: Asia/Seoul
-      # GitHub OAuth 로그인 (선택). .env 파일에 값을 넣으면 적용됨 (.env.example 참고)
+      # GitHub OAuth login (optional). Set values in .env to enable (see .env.example)
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-unset}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-unset}
-      # 관리자 계정 (선택). .env에 값을 넣으면 앱 시작 시 생성됨
+      # Admin account (optional). Created on startup when set in .env
       ADMIN_USERNAME: ${ADMIN_USERNAME:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     ports:

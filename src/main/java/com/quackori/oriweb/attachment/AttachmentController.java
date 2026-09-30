@@ -67,7 +67,7 @@ public class AttachmentController {
 		if (!resource.exists()) {
 			throw new ApiException(HttpStatus.NOT_FOUND, "파일이 존재하지 않습니다.");
 		}
-		// 한글 파일명도 깨지지 않도록 filename*=UTF-8'' 형식으로 내려줌
+		// Use filename*=UTF-8'' so non-ASCII (e.g. Korean) file names are preserved
 		ContentDisposition disposition = ContentDisposition.attachment()
 				.filename(attachment.getOriginalName(), StandardCharsets.UTF_8)
 				.build();

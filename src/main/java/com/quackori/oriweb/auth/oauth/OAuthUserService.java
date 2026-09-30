@@ -21,26 +21,26 @@ public class OAuthUserService {
 	private final PasswordEncoder passwordEncoder;
 
 	/**
-	 * OAuth 제공자의 사용자 ID로 기존 회원을 찾고, 없으면 새로 가입시킨다.
+	 * Finds the existing user by the provider's user ID, or signs up a new one.
 	 *
-	 * @param provider   제공자 이름 (예: github)
-	 * @param providerId 제공자의 사용자 고유 ID (GitHub 사용자 번호)
-	 * @param login      제공자의 로그인 아이디 (GitHub login). 우리 서비스 아이디를 만들 때 사용
+	 * @param provider   provider name (e.g. github)
+	 * @param providerId unique user ID from the provider (GitHub user number)
+	 * @param login      login name from the provider (GitHub login), used to build our username
 	 */
 	@Transactional
 	public User loginOrSignup(String provider, String providerId, String login) {
 		return userRepository.findByProviderAndProviderId(provider, providerId)
 				.orElseGet(() -> userRepository.save(User.ofOAuth(
 						createUsername(provider, providerId, login),
-						// 비밀번호 로그인이 불가능하도록 아무도 모르는 값을 해시해서 저장
+						// Store a hash of an unknown random value so password login is impossible
 						passwordEncoder.encode(UUID.randomUUID().toString()),
 						provider,
 						providerId)));
 	}
 
 	/**
-	 * 서비스 아이디 생성. 기본은 "gh_로그인아이디"이고, 20자를 넘거나 이미 사용 중이면 "github_사용자번호"를 쓴다.
-	 * 일반 회원가입 아이디는 영문/숫자만 허용하므로 밑줄(_)이 들어간 OAuth 아이디와 겹치지 않는다.
+	 * Builds our username: "gh_{login}" by default, or "github_{providerId}" if that is over 20 chars or already taken.
+	 * Regular signup only allows letters and digits, so it never collides with OAuth usernames containing "_".
 	 */
 	private String createUsername(String provider, String providerId, String login) {
 		String preferred = "gh_" + login;

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.quackori.oriweb.post.Post;
 
-/** 게시글 목록용 응답 (본문 제외) */
+/** Post list item (without content) */
 public record PostSummaryResponse(
 		Long id,
 		String title,

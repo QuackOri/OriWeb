@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-	// 작성자를 함께 조회해서 목록에서 게시글마다 추가 쿼리가 나가지 않게 함
+	// Fetch the author together to avoid an extra query per post (N+1)
 	@Override
 	@EntityGraph(attributePaths = "author")
 	Page<Post> findAll(Pageable pageable);

@@ -7,7 +7,7 @@ import com.quackori.oriweb.attachment.Attachment;
 import com.quackori.oriweb.attachment.AttachmentResponse;
 import com.quackori.oriweb.post.Post;
 
-/** 게시글 상세 응답 (첨부파일 목록 포함) */
+/** Post detail response (includes attachments) */
 public record PostResponse(
 		Long id,
 		String title,

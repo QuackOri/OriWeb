@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 112" role="img" aria-label="O">
-  <!-- 왼쪽을 보는 오리 옆모습. 통통한 몸통이 글자 O 역할 -->
+  <!-- Side view of a duck facing left. The round body acts as the letter O -->
 
-  <!-- 다리 (몸통 뒤) -->
+  <!-- Legs (behind the body) -->
   <path d="M64 94 L62 106 L52 109 M62 106 L70 109" fill="none" stroke="#ff9a1f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M82 94 L82 106 L72 109 M82 106 L90 109" fill="none" stroke="#ff9a1f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- 머리부터 목, 몸통, 꼬리까지 한 번에 이어 그린 실루엣 (이음새 없이 부드럽게) -->
+  <!-- Head, neck, body and tail drawn as one smooth silhouette (no seams) -->
   <path d="M36 6
            C24 6 18 15 20 24
            C22 34 28 42 30 54
@@ -18,12 +18,12 @@
            C46 8 42 6 36 6 Z"
         fill="#ffd84d" stroke="#141414" stroke-width="4" stroke-linejoin="round"/>
 
-  <!-- 날개 -->
+  <!-- Wing -->
   <path d="M62 64 C72 54 92 56 102 70 C90 80 72 78 62 64 Z" fill="#f2bf2a" stroke="#141414" stroke-width="2.5" stroke-linejoin="round"/>
 
-  <!-- 납작한 부리 (왼쪽) -->
+  <!-- Flat bill (left) -->
   <path d="M22 19 C14 18 4 21 3 25 C6 29 15 29 22 28 Z" fill="#ff9a1f" stroke="#141414" stroke-width="3" stroke-linejoin="round"/>
 
-  <!-- 눈 -->
+  <!-- Eye -->
   <circle cx="33" cy="15" r="2.8" fill="#141414"/>
 </svg>

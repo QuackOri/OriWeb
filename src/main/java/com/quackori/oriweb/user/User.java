@@ -30,24 +30,24 @@ public class User {
 	@Column(nullable = false, unique = true, length = 20)
 	private String username;
 
-	/** OAuth 사용자는 비밀번호 로그인을 할 수 없도록 임의 값의 해시가 저장된다. */
+	/** For OAuth users, a hash of a random value is stored so password login is impossible. */
 	@Column(nullable = false)
 	private String password;
 
-	/** OAuth 제공자 (예: github). 일반 회원가입 사용자는 null */
+	/** OAuth provider (e.g. github). Null for users who signed up with a password. */
 	@Column(length = 20)
 	private String provider;
 
-	/** OAuth 제공자의 사용자 고유 ID. 일반 회원가입 사용자는 null */
+	/** Unique user ID from the OAuth provider. Null for users who signed up with a password. */
 	@Column(name = "provider_id", length = 100)
 	private String providerId;
 
-	/** 권한. 이 컬럼이 추가되기 전에 가입한 사용자는 null이며 USER로 취급한다. */
+	/** Role. Null for users created before this column existed; treated as USER. */
 	@Enumerated(EnumType.STRING)
 	@Column(length = 10)
 	private Role role = Role.USER;
 
-	/** 계정 정지 여부. 이 컬럼이 추가되기 전에 가입한 사용자는 null이며 정지되지 않은 것으로 취급한다. */
+	/** Whether the account is suspended. Null for users created before this column existed; treated as not suspended. */
 	private Boolean suspended = false;
 
 	@CreationTimestamp

@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class PostService {
 
-	/** 게시글 번호를 로마 숫자(최대 MMMCMXCIX = 3999)로 표시하므로 게시글 수도 3999개로 제한 */
+	/** Post numbers are shown as Roman numerals (max MMMCMXCIX = 3999), so the number of posts is capped at 3999. */
 	public static final long MAX_POSTS = 3999;
 
 	private final PostRepository postRepository;
@@ -47,7 +47,7 @@ public class PostService {
 	public Post update(Long id, PostRequest request, User loginUser) {
 		Post post = getOwnedPost(id, loginUser);
 		post.update(request.title(), request.content());
-		// 수정 시각(@UpdateTimestamp)이 응답에 반영되도록 즉시 반영
+		// Flush now so the updated timestamp (@UpdateTimestamp) is included in the response
 		postRepository.flush();
 		return post;
 	}
@@ -55,7 +55,7 @@ public class PostService {
 	@Transactional
 	public void delete(Long id, User loginUser) {
 		Post post = getPost(id);
-		// 삭제는 작성자 또는 관리자 (수정은 작성자만)
+		// Delete: author or admin (edit: author only)
 		if (!post.isWrittenBy(loginUser) && !loginUser.isAdmin()) {
 			throw new ApiException(HttpStatus.FORBIDDEN, "게시글 작성자 또는 관리자만 삭제할 수 있습니다.");
 		}
@@ -64,7 +64,7 @@ public class PostService {
 		postRepository.delete(post);
 	}
 
-	/** 게시글을 조회하고 작성자가 아니면 403 예외. */
+	/** Returns the post, or throws 403 if the user is not its author. */
 	public Post getOwnedPost(Long id, User loginUser) {
 		Post post = getPost(id);
 		if (!post.isWrittenBy(loginUser)) {

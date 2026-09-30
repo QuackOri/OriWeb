@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 업로드 파일을 디스크(app.upload-dir)에 저장/조회/삭제한다.
- * 저장 파일명은 UUID로 새로 만들고, 원래 파일명은 DB(Attachment.originalName)에 보관한다.
+ * Saves, loads and deletes uploaded files on disk (app.upload-dir).
+ * Stored file names are new UUIDs; the original name is kept in the DB (Attachment.originalName).
  */
 @Component
 public class FileStorage {
@@ -29,17 +29,17 @@ public class FileStorage {
 		try {
 			Files.createDirectories(this.uploadDir);
 		} catch (IOException e) {
-			throw new UncheckedIOException("업로드 폴더를 만들 수 없습니다: " + this.uploadDir, e);
+			throw new UncheckedIOException("Cannot create upload directory: " + this.uploadDir, e);
 		}
 	}
 
-	/** 파일을 저장하고 저장 파일명을 반환한다. */
+	/** Saves the file and returns the stored file name. */
 	public String save(MultipartFile file) {
 		String storedName = UUID.randomUUID().toString();
 		try (InputStream in = file.getInputStream()) {
 			Files.copy(in, uploadDir.resolve(storedName), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
-			throw new UncheckedIOException("파일 저장에 실패했습니다.", e);
+			throw new UncheckedIOException("Failed to save file.", e);
 		}
 		return storedName;
 	}
@@ -52,7 +52,7 @@ public class FileStorage {
 		try {
 			Files.deleteIfExists(uploadDir.resolve(storedName));
 		} catch (IOException e) {
-			throw new UncheckedIOException("파일 삭제에 실패했습니다.", e);
+			throw new UncheckedIOException("Failed to delete file.", e);
 		}
 	}
 
