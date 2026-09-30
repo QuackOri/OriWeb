@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 14" preserveAspectRatio="none">
+  <!-- 가로로 반복되는 잡초 한 칸. 꼭짓점이 줄에 닿는 V자 풀잎을 크기와 간격을 다르게 배치 -->
+  <g fill="none" stroke="#39ff14" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 6 L17 13 L20 4"/>
+    <path d="M92 3 L95 13 L97 7 L99 13 L102 2"/>
+    <path d="M168 8 L170 13 L172 7"/>
+    <path d="M226 4 L229 13 L233 2"/>
+  </g>
+</svg>

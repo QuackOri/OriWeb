@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="인사하는 거위">
+  <!-- 날개를 들어 인사하는 거위 -->
+  <path d="M30 58 L30 62 L26 63 M30 62 L33 63 M38 57 L38 61 L34 62 M38 61 L41 62" fill="none" stroke="#ff9a1f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M46 7 C51 7 54 10 54 14 C54 18 51 20 48 21 C46 26 45 32 46 36 C52 40 52 52 42 56 C32 60 18 58 12 50 L4 40 C12 40 18 34 26 33 C34 32 38 30 39 26 C40 20 38 12 41 9 C42 8 44 7 46 7 Z" fill="#f7f7f2" stroke="#141414" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M24 38 C16 30 16 18 24 12 C28 20 31 28 35 37 Z" fill="#e2e2dc" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M17 12 L13 9 M21 8 L20 4 M28 8 L30 4" stroke="#d6f5dc" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M53 12 C58 11 62 12 62 14 C60 15 56 15 53 14.5 Z M53.5 16 C57 16 60 17 60 18 C58 19 55 19 53 18 Z" fill="#ff9a1f" stroke="#141414" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M46 12 Q48 10 50 12" fill="none" stroke="#141414" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

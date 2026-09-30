@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="책 읽는 거위">
+  <!-- 동그란 안경을 쓰고 책을 읽는 거위 -->
+  <path d="M30 58 L30 62 L26 63 M30 62 L33 63 M38 57 L38 61 L34 62 M38 61 L41 62" fill="none" stroke="#ff9a1f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M46 7 C51 7 54 10 54 14 C54 18 51 20 48 21 C46 26 45 32 46 36 C52 40 52 52 42 56 C32 60 18 58 12 50 L4 40 C12 40 18 34 26 33 C34 32 38 30 39 26 C40 20 38 12 41 9 C42 8 44 7 46 7 Z" fill="#f7f7f2" stroke="#141414" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M20 42 C26 36 38 36 42 44 C34 50 24 50 20 42 Z" fill="#e2e2dc" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M53 12 C58 12 62 14 62 16 C60 18 56 18 53 17 Z" fill="#ff9a1f" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="48" cy="12" r="1.6" fill="#141414"/>
+  <circle cx="48" cy="12" r="3.6" fill="none" stroke="#141414" stroke-width="1.4"/>
+  <path d="M44.4 12 L41 11" stroke="#141414" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M40 50 L50 46 L61 50 L61 60 L50 56 L40 60 Z" fill="#ffffff" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M50 46 V56" stroke="#141414" stroke-width="1.2"/>
+  <path d="M42 52 L48 50 M42 55 L48 53 M52 50 L59 52 M52 53 L59 55" stroke="#9aa3a0" stroke-width="1" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="커피 마시는 거위">
+  <!-- 따뜻한 커피 한 잔과 함께 쉬는 거위 -->
+  <path d="M30 58 L30 62 L26 63 M30 62 L33 63 M38 57 L38 61 L34 62 M38 61 L41 62" fill="none" stroke="#ff9a1f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M46 7 C51 7 54 10 54 14 C54 18 51 20 48 21 C46 26 45 32 46 36 C52 40 52 52 42 56 C32 60 18 58 12 50 L4 40 C12 40 18 34 26 33 C34 32 38 30 39 26 C40 20 38 12 41 9 C42 8 44 7 46 7 Z" fill="#f7f7f2" stroke="#141414" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M20 42 C26 36 38 36 42 44 C34 50 24 50 20 42 Z" fill="#e2e2dc" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M53 12 C58 12 62 14 62 16 C60 18 56 18 53 17 Z" fill="#ff9a1f" stroke="#141414" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M46 12 Q48 14 50 12" fill="none" stroke="#141414" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M58 48 C63 48 63 56 58 56" fill="none" stroke="#141414" stroke-width="1.8"/>
+  <rect x="45" y="45" width="13" height="14" rx="2.5" fill="#d9534f" stroke="#141414" stroke-width="1.5"/>
+  <ellipse cx="51.5" cy="46" rx="5.5" ry="1.5" fill="#6b3e26"/>
+  <path d="M49 42 C47 39 51 37 49 34 M54 42 C52 39 56 37 54 34" fill="none" stroke="#9aa0a6" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="번호">
+  <!-- 연잎 (개구리가 앉는 잎): 왼쪽 위가 V자로 파인 동그란 잎 -->
+  <path d="M50 52 L10.6 43.1 A40 40 0 1 0 27.1 17.2 Z" fill="#2fb54a" stroke="#1a7a2e" stroke-width="3" stroke-linejoin="round"/>
+  <!-- 잎맥 -->
+  <path d="M50 52 L84 38 M50 52 L82 72 M50 52 L56 88 M50 52 L22 76" fill="none" stroke="#7fe08f" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+</svg>

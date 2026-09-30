@@ -8,12 +8,10 @@
 </head>
 <body>
   <main>
-    <h1>게시판</h1>
-
     <table>
       <thead>
         <tr>
-          <th class="num">번호</th>
+          <th class="num"><img src="/images/lily-pad.svg" alt="번호" title="번호"></th>
           <th>제목</th>
           <th class="author">작성자</th>
           <th class="date">작성일</th>
@@ -42,20 +40,22 @@
       if (data.content.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" class="muted">게시글이 없습니다.</td></tr>';
       }
-      for (const post of data.content) {
+      // 번호는 DB ID가 아니라 순번 (최신 글이 가장 큰 번호). 게시글 수가 3999개로 제한되므로 항상 로마 숫자로 표시됨
+      data.content.forEach((post, index) => {
+        const number = data.totalElements - data.page * data.size - index;
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="num"></td>
           <td><a></a></td>
           <td class="author"></td>
           <td class="date"></td>`;
-        tr.children[0].textContent = post.id;
+        tr.children[0].textContent = toRoman(number);
         tr.querySelector('a').textContent = post.title;
         tr.querySelector('a').href = `/post.html?id=${post.id}`;
         tr.children[2].textContent = post.authorUsername;
         tr.children[3].textContent = formatDate(post.createdAt);
         tbody.append(tr);
-      }
+      });
 
       const pagination = document.getElementById('pagination');
       for (let i = 0; i < data.totalPages; i++) {

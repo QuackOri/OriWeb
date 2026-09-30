@@ -96,6 +96,20 @@ GitHub OAuth 2.0 로그인을 사용하려면 각자 GitHub OAuth App을 등록�
 
 > `.env` 파일은 `.gitignore`에 포함되어 Git에 올라가지 않습니다. Client Secret을 코드나 커밋에 넣지 마세요.
 
+### 관리자 계정 설정 (선택)
+
+`.env`에 관리자 아이디와 비밀번호를 넣으면, 앱이 시작될 때 해당 계정이 없으면 **관리자(ADMIN)** 로 생성합니다.
+
+```
+ADMIN_USERNAME=관리자아이디
+ADMIN_PASSWORD=관리자비밀번호
+```
+
+- 아이디는 영문/숫자 4~20자, 비밀번호는 4자 이상이어야 합니다.
+- 이미 일반 사용자가 쓰고 있는 아이디는 관리자로 바꾸지 않습니다. (로그에 경고 표시)
+- 값을 비워 두면 관리자 계정을 만들지 않습니다.
+- 현재 관리자는 프로필 그림(해커 오리)만 다르며, 별도 관리 기능은 없습니다.
+
 ### 포트와 계정 정보
 
 | 서비스 | 컨테이너 | 포트 | 비고 |
@@ -113,13 +127,15 @@ GitHub OAuth 2.0 로그인을 사용하려면 각자 GitHub OAuth App을 등록�
 |---|---|
 | 사용자 인증 | 회원가입, 로그인, 로그아웃 (HttpSession 기반 세션 인증, `JSESSIONID` 쿠키) |
 | OAuth 2.0 | GitHub 로그인 (Spring Security OAuth2 Client, Authorization Code 방식). 최초 로그인 시 자동 가입 |
-| 게시글 | 목록(페이징), 상세, 작성, 수정, 삭제 |
+| 게시글 | 목록(페이징, 번호는 로마 숫자 순번), 상세, 작성, 수정, 삭제. 최대 3,999개 |
 | 첨부파일 | 게시글에 여러 파일 업로드(파일당 최대 10MB), 원본 파일명으로 다운로드, 삭제 |
 | 댓글 | 작성, 수정, 삭제 |
 
 - 게시글 작성, 댓글 작성, 파일 업로드는 로그인이 필요합니다.
 - 게시글/첨부파일 수정·삭제는 게시글 작성자만, 댓글 수정·삭제는 댓글 작성자만 가능합니다.
 - 게시글을 삭제하면 댓글과 첨부파일도 함께 삭제됩니다.
+- 목록의 번호를 로마 숫자(최대 MMMCMXCIX = 3999)로 표시하므로 게시글은 최대 3,999개까지 작성할 수 있습니다. (초과 시 `409`)
+- 사용자 권한은 `USER`와 `ADMIN` 두 가지입니다. (`/api/auth/me` 응답의 `role`)
 
 ## API
 
@@ -179,13 +195,16 @@ GitHub OAuth 2.0 로그인을 사용하려면 각자 GitHub OAuth App을 등록�
 | 게시글 상세 (첨부파일, 댓글) | `/post.html?id={id}` |
 | 게시글 작성 / 수정 | `/write.html`, `/write.html?id={id}` |
 
+- 테마: 검은 배경, 네온 초록, 손글씨 글꼴(Nanum Pen Script). 로마 숫자는 Cinzel. (Google Fonts 사용, 인터넷 연결 필요)
+- 미운 오리 새끼 모티브: 로고의 O는 오리, 일반 사용자 프로필은 거위 6종 중 하나(사용자별 고정), 관리자 프로필은 해커 오리.
+
 ## 데이터베이스
 
 테이블은 애플리케이션 시작 시 JPA가 자동으로 생성합니다. (`ddl-auto: update`)
 
 | 테이블 | 주요 컬럼 |
 |---|---|
-| `users` | id, username, password(BCrypt), provider, provider_id, created_at |
+| `users` | id, username, password(BCrypt), provider, provider_id, role(USER/ADMIN), created_at |
 | `posts` | id, title, content, author_id → users, created_at, updated_at |
 | `comments` | id, post_id → posts, author_id → users, content, created_at, updated_at |
 | `attachments` | id, post_id → posts, original_name, stored_name(UUID), size, content_type, created_at |
@@ -221,3 +240,15 @@ docker compose up -d db
 ```
 
 로컬 실행 시 업로드 파일은 프로젝트 폴더의 `uploads/`에 저장됩니다.
+
+### 테스트
+
+```bash
+./gradlew test
+```
+
+JDK 없이 Docker로 실행하려면 (프로젝트 폴더에서):
+
+```bash
+docker run --rm -v "$PWD":/workspace -w /workspace eclipse-temurin:21-jdk ./gradlew test --no-daemon
+```
