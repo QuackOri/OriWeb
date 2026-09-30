@@ -38,6 +38,13 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		User user = oAuthUserService.loginOrSignup(provider, providerId, login);
 
+		// 정지된 계정은 로그인시키지 않음
+		if (user.isSuspended()) {
+			request.getSession().invalidate();
+			response.sendRedirect("/login.html?error=suspended");
+			return;
+		}
+
 		// 세션 ID는 Spring Security가 인증 성공 시 이미 새로 발급함 (세션 고정 방지)
 		request.getSession().setAttribute(SessionConst.LOGIN_USER_ID, user.getId());
 		response.sendRedirect("/");

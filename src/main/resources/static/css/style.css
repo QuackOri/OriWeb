@@ -132,6 +132,9 @@ th.author { color: var(--neon); }
 td.date, th.date { width: 150px; color: var(--muted); }
 th.date { color: var(--neon); }
 
+td.manage { white-space: nowrap; }
+td.manage button + button { margin-left: 12px; }
+
 .pagination { display: flex; gap: 14px; justify-content: center; margin-top: 20px; }
 .pagination a { color: var(--muted); }
 .pagination a:hover { color: var(--neon); }

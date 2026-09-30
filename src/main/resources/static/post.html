@@ -19,10 +19,8 @@
 
     <div class="actions">
       <a class="button" href="/">목록</a>
-      <span id="owner-actions" hidden>
-        <a class="button" id="edit-button">수정</a>
-        <button class="danger" id="delete-button">삭제</button>
-      </span>
+      <a class="button" id="edit-button" hidden>수정</a>
+      <button class="danger" id="delete-button" hidden>삭제</button>
     </div>
 
     <section>
@@ -59,7 +57,12 @@
         (isEdited(post) ? ` (수정 ${formatDate(post.updatedAt)})` : '');
       document.getElementById('content').textContent = post.content;
 
+      // 수정은 작성자만, 삭제는 작성자 또는 관리자 (실제 권한 확인은 서버에서)
+      const isAuthor = me && me.id === post.authorId;
+      const canDelete = isAuthor || isAdmin(me);
+
       const list = document.getElementById('attachment-list');
+      list.innerHTML = '';
       document.getElementById('attachment-section').hidden = post.attachments.length === 0;
       for (const file of post.attachments) {
         const li = document.createElement('li');
@@ -70,13 +73,33 @@
         size.className = 'muted';
         size.textContent = formatSize(file.size);
         li.append(link, size);
+        if (canDelete) {
+          const remove = document.createElement('button');
+          remove.className = 'link';
+          remove.textContent = '삭제';
+          remove.onclick = async () => {
+            if (!confirm(`${file.originalName} 파일을 삭제할까요?`)) return;
+            try {
+              await api('DELETE', `/api/attachments/${file.id}`);
+              await loadPost();
+            } catch (e) {
+              alert(e.message);
+            }
+          };
+          li.append(remove);
+        }
         list.append(li);
       }
 
-      if (me && me.id === post.authorId) {
-        document.getElementById('owner-actions').hidden = false;
-        document.getElementById('edit-button').href = `/write.html?id=${post.id}`;
-        document.getElementById('delete-button').onclick = async () => {
+      if (isAuthor) {
+        const edit = document.getElementById('edit-button');
+        edit.hidden = false;
+        edit.href = `/write.html?id=${post.id}`;
+      }
+      if (canDelete) {
+        const remove = document.getElementById('delete-button');
+        remove.hidden = false;
+        remove.onclick = async () => {
           if (!confirm('게시글을 삭제할까요? 첨부파일과 댓글도 함께 삭제됩니다.')) return;
           try {
             await api('DELETE', `/api/posts/${post.id}`);
@@ -110,15 +133,15 @@
       const body = div.querySelector('.body');
       body.textContent = comment.content;
 
-      if (me && me.id === comment.authorId) {
-        const head = div.querySelector('.head');
+      // 수정은 댓글 작성자만, 삭제는 댓글 작성자 또는 관리자
+      const isAuthor = me && me.id === comment.authorId;
+      const head = div.querySelector('.head');
+
+      if (isAuthor) {
         const edit = document.createElement('button');
         edit.className = 'link';
         edit.textContent = '수정';
-        const remove = document.createElement('button');
-        remove.className = 'link';
-        remove.textContent = '삭제';
-        head.append(edit, remove);
+        head.append(edit);
 
         edit.onclick = () => {
           // 댓글 본문을 수정 입력창으로 바꿈
@@ -143,6 +166,13 @@
             }
           };
         };
+      }
+
+      if (isAuthor || isAdmin(me)) {
+        const remove = document.createElement('button');
+        remove.className = 'link';
+        remove.textContent = '삭제';
+        head.append(remove);
 
         remove.onclick = async () => {
           if (!confirm('댓글을 삭제할까요?')) return;

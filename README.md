@@ -108,7 +108,7 @@ ADMIN_PASSWORD=관리자비밀번호
 - 아이디는 영문/숫자 4~20자, 비밀번호는 4자 이상이어야 합니다.
 - 이미 일반 사용자가 쓰고 있는 아이디는 관리자로 바꾸지 않습니다. (로그에 경고 표시)
 - 값을 비워 두면 관리자 계정을 만들지 않습니다.
-- 현재 관리자는 프로필 그림(해커 오리)만 다르며, 별도 관리 기능은 없습니다.
+- 관리자는 관리자 페이지(`/admin.html`)에서 사용자 목록 조회, 권한 변경, 계정 정지를 할 수 있고, 모든 게시글·댓글·첨부파일을 삭제할 수 있습니다.
 
 ### 포트와 계정 정보
 
@@ -132,10 +132,12 @@ ADMIN_PASSWORD=관리자비밀번호
 | 댓글 | 작성, 수정, 삭제 |
 
 - 게시글 작성, 댓글 작성, 파일 업로드는 로그인이 필요합니다.
-- 게시글/첨부파일 수정·삭제는 게시글 작성자만, 댓글 수정·삭제는 댓글 작성자만 가능합니다.
+- 게시글 수정은 게시글 작성자만, 댓글 수정은 댓글 작성자만 가능합니다.
+- 게시글·첨부파일 삭제는 게시글 작성자 또는 관리자, 댓글 삭제는 댓글 작성자 또는 관리자가 할 수 있습니다.
 - 게시글을 삭제하면 댓글과 첨부파일도 함께 삭제됩니다.
 - 목록의 번호를 로마 숫자(최대 MMMCMXCIX = 3999)로 표시하므로 게시글은 최대 3,999개까지 작성할 수 있습니다. (초과 시 `409`)
 - 사용자 권한은 `USER`와 `ADMIN` 두 가지입니다. (`/api/auth/me` 응답의 `role`)
+- 정지된 계정은 로그인할 수 없고, 로그인 중이던 세션도 다음 요청에서 끊깁니다. 관리자는 자기 자신의 권한 변경이나 정지를 할 수 없습니다.
 
 ## API
 
@@ -154,15 +156,18 @@ ADMIN_PASSWORD=관리자비밀번호
 | | GET | `/api/posts/{id}` | 게시글 상세 (첨부파일 목록 포함) | - |
 | | POST | `/api/posts` | 게시글 작성 | 로그인 |
 | | PUT | `/api/posts/{id}` | 게시글 수정 | 작성자 |
-| | DELETE | `/api/posts/{id}` | 게시글 삭제 | 작성자 |
+| | DELETE | `/api/posts/{id}` | 게시글 삭제 | 작성자, 관리자 |
 | Attachment | POST | `/api/posts/{postId}/attachments` | 첨부파일 업로드 (multipart, `files`) | 게시글 작성자 |
 | | GET | `/api/posts/{postId}/attachments` | 첨부파일 목록 | - |
 | | GET | `/api/attachments/{id}/download` | 첨부파일 다운로드 | - |
-| | DELETE | `/api/attachments/{id}` | 첨부파일 삭제 | 게시글 작성자 |
+| | DELETE | `/api/attachments/{id}` | 첨부파일 삭제 | 게시글 작성자, 관리자 |
 | Comment | GET | `/api/posts/{postId}/comments` | 댓글 목록 | - |
 | | POST | `/api/posts/{postId}/comments` | 댓글 작성 | 로그인 |
 | | PUT | `/api/comments/{id}` | 댓글 수정 | 댓글 작성자 |
-| | DELETE | `/api/comments/{id}` | 댓글 삭제 | 댓글 작성자 |
+| | DELETE | `/api/comments/{id}` | 댓글 삭제 | 댓글 작성자, 관리자 |
+| Admin | GET | `/api/admin/users` | 사용자 목록 | 관리자 |
+| | PATCH | `/api/admin/users/{id}/role` | 권한 변경 (`{"role":"ADMIN"}`) | 관리자 |
+| | PATCH | `/api/admin/users/{id}/suspension` | 계정 정지 / 해제 (`{"suspended":true}`) | 관리자 |
 
 오류 응답은 다음 형식으로 통일되어 있습니다.
 
@@ -194,6 +199,7 @@ ADMIN_PASSWORD=관리자비밀번호
 | 회원가입 | `/signup.html` |
 | 게시글 상세 (첨부파일, 댓글) | `/post.html?id={id}` |
 | 게시글 작성 / 수정 | `/write.html`, `/write.html?id={id}` |
+| 관리자 (사용자 관리) | `/admin.html` |
 
 - 테마: 검은 배경, 네온 초록, 손글씨 글꼴(Nanum Pen Script). 로마 숫자는 Cinzel. (Google Fonts 사용, 인터넷 연결 필요)
 - 미운 오리 새끼 모티브: 로고의 O는 오리, 일반 사용자 프로필은 거위 6종 중 하나(사용자별 고정), 관리자 프로필은 해커 오리.
@@ -204,7 +210,7 @@ ADMIN_PASSWORD=관리자비밀번호
 
 | 테이블 | 주요 컬럼 |
 |---|---|
-| `users` | id, username, password(BCrypt), provider, provider_id, role(USER/ADMIN), created_at |
+| `users` | id, username, password(BCrypt), provider, provider_id, role(USER/ADMIN), suspended, created_at |
 | `posts` | id, title, content, author_id → users, created_at, updated_at |
 | `comments` | id, post_id → posts, author_id → users, content, created_at, updated_at |
 | `attachments` | id, post_id → posts, original_name, stored_name(UUID), size, content_type, created_at |
@@ -221,6 +227,7 @@ src/main/java/com/quackori/oriweb
 ├─ post/         # 게시글
 ├─ attachment/   # 첨부파일 업로드/다운로드, 파일 저장소
 ├─ comment/      # 댓글
+├─ admin/        # 관리자: 사용자 목록, 권한 변경, 계정 정지
 └─ common/       # 공통 예외 처리, 페이지 응답
 src/main/resources
 ├─ application.yml

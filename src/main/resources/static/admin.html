@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OriWeb - 관리자</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main>
+    <h1>관리자</h1>
+
+    <section>
+      <h2>사용자 관리</h2>
+      <table>
+        <thead>
+          <tr>
+            <th class="num"><img src="/images/lily-pad.svg" alt="번호" title="번호"></th>
+            <th>아이디</th>
+            <th>가입 방식</th>
+            <th>권한</th>
+            <th>상태</th>
+            <th>가입일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="user-list"></tbody>
+      </table>
+      <p class="muted">게시글, 댓글, 첨부파일 삭제는 각 게시글 화면에서 할 수 있습니다.</p>
+    </section>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    let me = null;
+
+    async function changeRole(user) {
+      const next = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
+      if (!confirm(`${user.username}의 권한을 ${next}(으)로 바꿀까요?`)) return;
+      try {
+        await api('PATCH', `/api/admin/users/${user.id}/role`, { role: next });
+        await loadUsers();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function changeSuspended(user) {
+      const next = !user.suspended;
+      if (!confirm(`${user.username} 계정을 ${next ? '정지' : '정지 해제'}할까요?`)) return;
+      try {
+        await api('PATCH', `/api/admin/users/${user.id}/suspension`, { suspended: next });
+        await loadUsers();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function loadUsers() {
+      const users = await api('GET', '/api/admin/users');
+      const tbody = document.getElementById('user-list');
+      tbody.innerHTML = '';
+      users.forEach((user, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="num"></td>
+          <td class="author"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="date"></td>
+          <td class="manage"></td>`;
+        const cells = tr.children;
+        cells[0].textContent = toRoman(index + 1);
+        cells[1].textContent = user.username;
+        cells[2].textContent = user.provider ? 'GitHub' : '일반';
+        cells[3].textContent = user.role;
+        cells[4].textContent = user.suspended ? '정지' : '정상';
+        if (user.suspended) cells[4].className = 'error';
+        cells[5].textContent = formatDate(user.createdAt);
+
+        if (user.id === me.id) {
+          cells[6].textContent = '(나)';
+          cells[6].classList.add('muted');
+        } else {
+          const role = document.createElement('button');
+          role.className = 'link';
+          role.textContent = user.role === 'ADMIN' ? 'USER로' : 'ADMIN으로';
+          role.onclick = () => changeRole(user);
+          const suspend = document.createElement('button');
+          suspend.className = 'link';
+          suspend.textContent = user.suspended ? '정지 해제' : '정지';
+          suspend.onclick = () => changeSuspended(user);
+          cells[6].append(role, suspend);
+        }
+        tbody.append(tr);
+      });
+    }
+
+    (async () => {
+      me = await renderHeader();
+      if (!requireLogin(me)) return;
+      if (!isAdmin(me)) {
+        alert('관리자만 접근할 수 있습니다.');
+        location.href = '/';
+        return;
+      }
+      await loadUsers();
+    })();
+  </script>
+</body>
+</html>

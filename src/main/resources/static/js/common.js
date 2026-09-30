@@ -72,7 +72,15 @@ async function renderHeader() {
       await api('POST', '/api/auth/logout');
       location.href = '/';
     };
-    nav.append(name, logout);
+    // 관리자에게만 Admin 메뉴 표시 (실제 권한 확인은 서버에서)
+    if (isAdmin(me)) {
+      const admin = document.createElement('a');
+      admin.href = '/admin.html';
+      admin.innerHTML = '<img class="pad" src="/images/lily-pad.svg" alt="">Admin';
+      nav.append(name, admin, logout);
+    } else {
+      nav.append(name, logout);
+    }
   } else {
     nav.innerHTML = `
       <a href="/login.html"><img class="pad" src="/images/lily-pad.svg" alt="">Login</a>
@@ -91,8 +99,12 @@ const AVATARS = ['goose-relax', 'goose-write', 'goose-coffee', 'goose-read', 'go
  * 프로필 그림. 관리자는 해커 오리, 일반 사용자는 거위 그림 중 하나.
  * 사용자 ID로 골라서 같은 사람은 항상 같은 거위가 나온다.
  */
+function isAdmin(user) {
+  return !!user && user.role === 'ADMIN';
+}
+
 function avatarOf(user) {
-  if (user.role === 'ADMIN') {
+  if (isAdmin(user)) {
     return '/images/hacker_duck.png';
   }
   return `/images/avatars/${AVATARS[user.id % AVATARS.length]}.svg`;

@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AuthService {
 
+	public static final String SUSPENDED_MESSAGE = "정지된 계정입니다. 관리자에게 문의하세요.";
+
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
@@ -32,22 +34,41 @@ public class AuthService {
 	}
 
 	public User login(LoginRequest request) {
-		return userRepository.findByUsername(request.username())
-				.filter(user -> passwordEncoder.matches(request.password(), user.getPassword()))
+		User user = userRepository.findByUsername(request.username())
+				.filter(found -> passwordEncoder.matches(request.password(), found.getPassword()))
 				.orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."));
+		if (user.isSuspended()) {
+			throw new ApiException(HttpStatus.FORBIDDEN, SUSPENDED_MESSAGE);
+		}
+		return user;
 	}
 
 	/**
 	 * 세션에서 로그인 사용자를 조회한다. 로그인하지 않았으면 401 예외.
 	 * 게시글, 댓글 등 로그인이 필요한 기능에서 공통으로 사용한다.
+	 * 로그인 중에 정지된 계정이면 세션을 끊고 403 예외.
 	 */
 	public User getLoginUser(HttpSession session) {
 		Object userId = session.getAttribute(SessionConst.LOGIN_USER_ID);
 		if (userId == null) {
 			throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
 		}
-		return userRepository.findById((Long) userId)
+		User user = userRepository.findById((Long) userId)
 				.orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."));
+		if (user.isSuspended()) {
+			session.invalidate();
+			throw new ApiException(HttpStatus.FORBIDDEN, SUSPENDED_MESSAGE);
+		}
+		return user;
+	}
+
+	/** 관리자만 허용. 로그인하지 않았으면 401, 관리자가 아니면 403. */
+	public User getAdmin(HttpSession session) {
+		User user = getLoginUser(session);
+		if (!user.isAdmin()) {
+			throw new ApiException(HttpStatus.FORBIDDEN, "관리자만 가능합니다.");
+		}
+		return user;
 	}
 
 }

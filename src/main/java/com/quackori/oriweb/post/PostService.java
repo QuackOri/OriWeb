@@ -54,7 +54,11 @@ public class PostService {
 
 	@Transactional
 	public void delete(Long id, User loginUser) {
-		Post post = getOwnedPost(id, loginUser);
+		Post post = getPost(id);
+		// 삭제는 작성자 또는 관리자 (수정은 작성자만)
+		if (!post.isWrittenBy(loginUser) && !loginUser.isAdmin()) {
+			throw new ApiException(HttpStatus.FORBIDDEN, "게시글 작성자 또는 관리자만 삭제할 수 있습니다.");
+		}
 		commentService.deleteAllByPost(post);
 		attachmentService.deleteAllByPost(post);
 		postRepository.delete(post);

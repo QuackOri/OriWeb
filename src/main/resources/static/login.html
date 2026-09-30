@@ -32,6 +32,8 @@
 
     if (getParam('error') === 'oauth') {
       document.getElementById('error').textContent = 'GitHub 로그인에 실패했습니다.';
+    } else if (getParam('error') === 'suspended') {
+      document.getElementById('error').textContent = '정지된 계정입니다. 관리자에게 문의하세요.';
     }
 
     document.getElementById('login-form').onsubmit = async (event) => {

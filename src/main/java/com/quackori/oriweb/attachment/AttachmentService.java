@@ -55,8 +55,8 @@ public class AttachmentService {
 	@Transactional
 	public void delete(Long id, User loginUser) {
 		Attachment attachment = getAttachment(id);
-		if (!attachment.getPost().isWrittenBy(loginUser)) {
-			throw new ApiException(HttpStatus.FORBIDDEN, "게시글 작성자만 첨부파일을 삭제할 수 있습니다.");
+		if (!attachment.getPost().isWrittenBy(loginUser) && !loginUser.isAdmin()) {
+			throw new ApiException(HttpStatus.FORBIDDEN, "게시글 작성자 또는 관리자만 첨부파일을 삭제할 수 있습니다.");
 		}
 		attachmentRepository.delete(attachment);
 		fileStorage.delete(attachment.getStoredName());
