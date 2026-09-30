@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,9 +42,18 @@ public class User {
 	@Column(name = "provider_id", length = 100)
 	private String providerId;
 
+	/** 권한. 이 컬럼이 추가되기 전에 가입한 사용자는 null이며 USER로 취급한다. */
+	@Enumerated(EnumType.STRING)
+	@Column(length = 10)
+	private Role role = Role.USER;
+
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+
+	public boolean isAdmin() {
+		return role == Role.ADMIN;
+	}
 
 	public User(String username, String password) {
 		this.username = username;
@@ -53,6 +64,12 @@ public class User {
 		User user = new User(username, password);
 		user.provider = provider;
 		user.providerId = providerId;
+		return user;
+	}
+
+	public static User ofAdmin(String username, String password) {
+		User user = new User(username, password);
+		user.role = Role.ADMIN;
 		return user;
 	}
 

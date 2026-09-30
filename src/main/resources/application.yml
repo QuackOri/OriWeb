@@ -44,6 +44,10 @@ server:
 
 app:
   upload-dir: ${UPLOAD_DIR:./uploads}
+  # 관리자 계정 (선택). 값이 있으면 앱 시작 시 계정이 없을 때 생성 (AdminInitializer)
+  admin:
+    username: ${ADMIN_USERNAME:}
+    password: ${ADMIN_PASSWORD:}
 
 # Spring Boot Actuator: health, info만 HTTP로 노출
 management:

@@ -36,6 +36,9 @@ services:
       # GitHub OAuth 로그인 (선택). .env 파일에 값을 넣으면 적용됨 (.env.example 참고)
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-unset}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-unset}
+      # 관리자 계정 (선택). .env에 값을 넣으면 앱 시작 시 생성됨
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     ports:
       - "127.0.0.1:8080:8080"
     volumes:

@@ -19,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class PostService {
 
+	/** 게시글 번호를 로마 숫자(최대 MMMCMXCIX = 3999)로 표시하므로 게시글 수도 3999개로 제한 */
+	public static final long MAX_POSTS = 3999;
+
 	private final PostRepository postRepository;
 	private final AttachmentService attachmentService;
 	private final CommentService commentService;
@@ -34,6 +37,9 @@ public class PostService {
 
 	@Transactional
 	public Post create(PostRequest request, User loginUser) {
+		if (postRepository.count() >= MAX_POSTS) {
+			throw new ApiException(HttpStatus.CONFLICT, "게시글은 최대 " + MAX_POSTS + "개까지 작성할 수 있습니다.");
+		}
 		return postRepository.save(new Post(request.title(), request.content(), loginUser));
 	}
 
