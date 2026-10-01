@@ -44,6 +44,8 @@
       data.content.forEach((post, index) => {
         const number = data.totalElements - data.page * data.size - index;
         const tr = document.createElement('tr');
+        // Posts written by admins are highlighted
+        if (post.authorAdmin) tr.className = 'admin-post';
         tr.innerHTML = `
           <td class="num"></td>
           <td><a></a></td>

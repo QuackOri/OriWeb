@@ -132,6 +132,10 @@ th.author { color: var(--neon); }
 td.date, th.date { width: 150px; color: var(--muted); }
 th.date { color: var(--neon); }
 
+/* Posts written by admins: crown + glowing duck-yellow title */
+tr.admin-post td a { color: var(--duck); text-shadow: 0 0 6px rgba(255, 216, 77, 0.6); }
+tr.admin-post td a::before { content: "\1F451  "; }
+
 td.manage { white-space: nowrap; }
 td.manage button + button { margin-left: 12px; }
 
