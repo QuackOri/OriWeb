@@ -128,7 +128,7 @@ ADMIN_PASSWORD=관리자비밀번호
 | 구분 | 기능 |
 |---|---|
 | 사용자 인증 | 회원가입, 로그인, 로그아웃 (HttpSession 기반 세션 인증, `JSESSIONID` 쿠키) |
-| OAuth 2.0 | GitHub 로그인 (Spring Security OAuth2 Client, Authorization Code 방식). 최초 로그인 시 자동 가입 |
+| OAuth 2.0 | GitHub 로그인 (Spring Security OAuth2 Client, Authorization Code 방식). 처음 사용하는 GitHub 계정은 가입 확인 후 `gh_GitHub아이디`로 가입. 회원가입 페이지에서도 GitHub로 가입 가능 |
 | 게시글 | 목록(페이징, 번호는 로마 숫자 순번), 상세, 작성, 수정, 삭제. 최대 3,999개 |
 | 첨부파일 | 게시글에 여러 파일 업로드(파일당 최대 10MB), 원본 파일명으로 다운로드, 삭제 |
 | 댓글 | 작성, 수정, 삭제 |
@@ -153,7 +153,10 @@ ADMIN_PASSWORD=관리자비밀번호
 | | GET | `/api/auth/me` | 로그인 사용자 조회 | 로그인 |
 | | GET | `/api/auth/oauth-providers` | GitHub 로그인 사용 가능 여부 | - |
 | OAuth | GET | `/oauth2/authorization/github` | GitHub 인증 페이지로 이동 (브라우저) | - |
-| | GET | `/login/oauth2/code/github` | GitHub 인증 후 콜백 (세션 생성 후 `/`로 이동) | - |
+| | GET | `/login/oauth2/code/github` | GitHub 인증 후 콜백 (가입된 계정이면 로그인 후 `/`, 처음이면 `/oauth-signup.html`로 이동) | - |
+| | GET | `/api/auth/oauth-signup` | GitHub 가입 확인 정보 (가입될 아이디) | GitHub 인증 직후 |
+| | POST | `/api/auth/oauth-signup` | GitHub 계정으로 가입 + 로그인 | GitHub 인증 직후 |
+| | DELETE | `/api/auth/oauth-signup` | GitHub 가입 취소 | - |
 | Post | GET | `/api/posts?page=0&size=10` | 게시글 목록 (최신순) | - |
 | | GET | `/api/posts/{id}` | 게시글 상세 (첨부파일 목록 포함) | - |
 | | POST | `/api/posts` | 게시글 작성 | 로그인 |
@@ -202,6 +205,7 @@ ADMIN_PASSWORD=관리자비밀번호
 | 게시글 상세 (첨부파일, 댓글) | `/post.html?id={id}` |
 | 게시글 작성 / 수정 | `/write.html`, `/write.html?id={id}` |
 | 관리자 (사용자 관리) | `/admin.html` |
+| GitHub 가입 확인 | `/oauth-signup.html` |
 
 ## 데이터베이스
 

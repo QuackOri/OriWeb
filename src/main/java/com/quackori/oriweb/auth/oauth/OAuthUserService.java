@@ -1,5 +1,6 @@
 package com.quackori.oriweb.auth.oauth;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OAuthUserService {
 
 	private static final int MAX_USERNAME_LENGTH = 20;
@@ -20,34 +22,37 @@ public class OAuthUserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	/**
-	 * Finds the existing user by the provider's user ID, or signs up a new one.
-	 *
-	 * @param provider   provider name (e.g. github)
-	 * @param providerId unique user ID from the provider (GitHub user number)
-	 * @param login      login name from the provider (GitHub login), used to build our username
-	 */
-	@Transactional
-	public User loginOrSignup(String provider, String providerId, String login) {
-		return userRepository.findByProviderAndProviderId(provider, providerId)
-				.orElseGet(() -> userRepository.save(User.ofOAuth(
-						createUsername(provider, providerId, login),
-						// Store a hash of an unknown random value so password login is impossible
-						passwordEncoder.encode(UUID.randomUUID().toString()),
-						provider,
-						providerId)));
+	/** Finds the user already linked to this provider account. */
+	public Optional<User> findUser(String provider, String providerId) {
+		return userRepository.findByProviderAndProviderId(provider, providerId);
 	}
 
 	/**
-	 * Builds our username: "gh_{login}" by default, or "github_{providerId}" if that is over 20 chars or already taken.
+	 * Signs up a new user for the pending provider account.
+	 * If the account was linked in the meantime, returns the existing user instead of creating a duplicate.
+	 * The username is decided here (not when the confirmation page was shown) in case it was taken meanwhile.
+	 */
+	@Transactional
+	public User signup(PendingOAuthSignup pending) {
+		return findUser(pending.provider(), pending.providerId())
+				.orElseGet(() -> userRepository.save(User.ofOAuth(
+						proposeUsername(pending),
+						// Store a hash of an unknown random value so password login is impossible
+						passwordEncoder.encode(UUID.randomUUID().toString()),
+						pending.provider(),
+						pending.providerId())));
+	}
+
+	/**
+	 * Builds our username: "gh_{login}" by default, or "{provider}_{providerId}" if that is over 20 chars or already taken.
 	 * Regular signup only allows letters and digits, so it never collides with OAuth usernames containing "_".
 	 */
-	private String createUsername(String provider, String providerId, String login) {
-		String preferred = "gh_" + login;
+	public String proposeUsername(PendingOAuthSignup pending) {
+		String preferred = "gh_" + pending.login();
 		if (preferred.length() <= MAX_USERNAME_LENGTH && !userRepository.existsByUsername(preferred)) {
 			return preferred;
 		}
-		return provider + "_" + providerId;
+		return pending.provider() + "_" + pending.providerId();
 	}
 
 }

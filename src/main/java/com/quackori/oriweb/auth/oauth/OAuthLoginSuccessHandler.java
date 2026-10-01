@@ -1,6 +1,7 @@
 package com.quackori.oriweb.auth.oauth;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -17,7 +18,8 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Called after GitHub authentication succeeds.
- * Links the GitHub account to our user, then stores the user ID in the session like a regular login.
+ * If the GitHub account is already linked, logs in like a regular login (user ID in the session).
+ * Otherwise, redirects to the signup confirmation page (/oauth-signup.html).
  */
 @Component
 @RequiredArgsConstructor
@@ -36,7 +38,16 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 		String providerId = String.valueOf(oAuth2User.getAttributes().get("id"));
 		String login = String.valueOf(oAuth2User.getAttributes().get("login"));
 
-		User user = oAuthUserService.loginOrSignup(provider, providerId, login);
+		Optional<User> linkedUser = oAuthUserService.findUser(provider, providerId);
+
+		// First time with this GitHub account: keep its info in the session and ask the user to confirm the signup
+		if (linkedUser.isEmpty()) {
+			request.getSession().setAttribute(SessionConst.OAUTH_PENDING_SIGNUP,
+					new PendingOAuthSignup(provider, providerId, login));
+			response.sendRedirect("/oauth-signup.html");
+			return;
+		}
+		User user = linkedUser.get();
 
 		// Do not log in suspended accounts
 		if (user.isSuspended()) {

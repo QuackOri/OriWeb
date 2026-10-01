@@ -137,6 +137,22 @@ tr.admin-post td a { color: var(--duck); text-shadow: 0 0 6px rgba(255, 216, 77,
 tr.admin-post td a::before { content: "\1F451  "; }
 
 td.manage { white-space: nowrap; }
+
+/* ===== GitHub signup confirmation ===== */
+.oauth-signup { display: flex; flex-direction: column; gap: 12px; max-width: 420px; }
+.oauth-signup p { margin: 0; }
+.oauth-signup .user-name { color: var(--duck); }
+.oauth-signup .new-username {
+  font-size: 34px;
+  color: var(--neon);
+  text-shadow: var(--glow);
+  padding: 10px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--neon);
+  border-radius: 4px;
+}
+.oauth-signup .actions { margin: 4px 0; }
 td.manage button + button { margin-left: 12px; }
 
 .pagination { display: flex; gap: 14px; justify-content: center; margin-top: 20px; }

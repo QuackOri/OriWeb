@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OriWeb - GitHub 회원가입</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main>
+    <h1>GitHub 계정으로 회원가입</h1>
+    <div class="oauth-signup" id="signup-box" hidden>
+      <p>GitHub 계정 <span class="user-name" id="github-login"></span>(으)로 처음 로그인했어요.<br>아래 아이디로 가입할까요?</p>
+      <div class="new-username" id="new-username"></div>
+      <p class="muted">가입하면 다음부터는 GitHub로 로그인하면 바로 이 아이디로 로그인돼요.</p>
+      <p class="error" id="error"></p>
+      <div class="actions">
+        <button class="primary" id="signup-button">가입하기</button>
+        <button id="cancel-button">취소</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    (async () => {
+      await renderHeader();
+
+      // The pending GitHub account is kept in the server session after GitHub authentication
+      let info;
+      try {
+        info = await api('GET', '/api/auth/oauth-signup');
+      } catch (e) {
+        alert(e.message);
+        location.href = '/login.html';
+        return;
+      }
+
+      document.getElementById('github-login').textContent = info.login;
+      document.getElementById('new-username').textContent = info.username;
+      document.getElementById('signup-box').hidden = false;
+
+      const signupButton = document.getElementById('signup-button');
+      signupButton.onclick = async () => {
+        signupButton.disabled = true;
+        try {
+          await api('POST', '/api/auth/oauth-signup');
+          location.href = '/';
+        } catch (e) {
+          document.getElementById('error').textContent = e.message;
+          signupButton.disabled = false;
+        }
+      };
+
+      document.getElementById('cancel-button').onclick = async () => {
+        try {
+          await api('DELETE', '/api/auth/oauth-signup');
+        } finally {
+          location.href = '/login.html';
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

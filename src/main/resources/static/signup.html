@@ -18,12 +18,19 @@
       <input type="password" id="password-confirm" autocomplete="new-password" required>
       <p class="error" id="error"></p>
       <button type="submit" class="primary">가입하기</button>
+      <a class="button" href="/oauth2/authorization/github" id="github-signup" hidden>GitHub 계정으로 회원가입</a>
     </form>
   </main>
 
   <script src="/js/common.js"></script>
   <script>
     renderHeader();
+
+    // Show the button only when a GitHub OAuth App is configured.
+    // It starts the same GitHub flow as login; new accounts get a signup confirmation page.
+    api('GET', '/api/auth/oauth-providers')
+      .then(providers => { document.getElementById('github-signup').hidden = !providers.github; })
+      .catch(() => {});
 
     document.getElementById('signup-form').onsubmit = async (event) => {
       event.preventDefault();
