@@ -3,7 +3,7 @@
 > ⚠️ **교육용 의도적 취약 애플리케이션입니다.**
 > 모의해킹 실습을 위해 보안 취약점을 포함하고 있습니다.
 > 반드시 **로컬 환경에서만** 실행하고, 공개 서버나 인터넷에 노출된 환경에 배포하지 마세요.
-
+![게시판 메인 화면](docs/images/main.png)
 세션 인증, 게시글(파일 업로드/다운로드 포함), 댓글 기능을 가진 간단한 게시판입니다.
 
 ## 기술 스택
@@ -24,8 +24,6 @@
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) 설치 및 실행
 - Git
-
-Java, Gradle, MySQL은 설치하지 않아도 됩니다. 빌드와 DB 모두 Docker 컨테이너 안에서 실행됩니다.
 
 ### 2. 소스 받기
 
@@ -201,9 +199,6 @@ ADMIN_PASSWORD=관리자비밀번호
 | 게시글 작성 / 수정 | `/write.html`, `/write.html?id={id}` |
 | 관리자 (사용자 관리) | `/admin.html` |
 
-- 테마: 검은 배경, 네온 초록, 손글씨 글꼴(Nanum Pen Script). 로마 숫자는 Cinzel. (Google Fonts 사용, 인터넷 연결 필요)
-- 미운 오리 새끼 모티브: 로고의 O는 오리, 일반 사용자 프로필은 거위 6종 중 하나(사용자별 고정), 관리자 프로필은 해커 오리.
-
 ## 데이터베이스
 
 테이블은 애플리케이션 시작 시 JPA가 자동으로 생성합니다. (`ddl-auto: update`)
@@ -234,7 +229,7 @@ src/main/resources
 └─ static/       # 화면 (HTML, CSS, JS)
 ```
 
-## 로컬 개발 (선택)
+## 로컬 개발
 
 IntelliJ 등에서 애플리케이션을 직접 실행하려면 JDK 21이 필요합니다.
 
