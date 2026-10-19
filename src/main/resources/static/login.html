@@ -43,9 +43,20 @@
           username: document.getElementById('username').value,
           password: document.getElementById('password').value,
         });
-        // Only redirect back to a path on this site
-        const redirect = getParam('redirect');
-        location.href = redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/';
+        // 허용된 내부 경로로만 이동 (오픈 리다이렉트 방지)
+        const allowedPaths = ['/', '/index.html', '/post.html', '/write.html', '/admin.html'];
+        const input = getParam('redirect');
+        let target = '/';
+        if (input) {
+          try {
+            const url = new URL(input, location.origin);
+            // 동일 출처이고 허용 경로일 때만 이동 (백슬래시/프로토콜 상대 URL 등 우회 입력 차단)
+            if (url.origin === location.origin && allowedPaths.includes(url.pathname)) {
+              target = url.pathname + url.search;
+            }
+          } catch (e) { /* 잘못된 URL은 기본 경로로 */ }
+        }
+        location.href = target;
       } catch (e) {
         document.getElementById('error').textContent = e.message;
       }
