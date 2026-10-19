@@ -48,6 +48,10 @@ app:
   admin:
     username: ${ADMIN_USERNAME:}
     password: ${ADMIN_PASSWORD:}
+  # 동일 IP의 과도한 API 요청 제한 (무제한 요청 차단). 수치는 보안정책에 맞게 조정
+  rate-limit:
+    max-requests: ${RATE_LIMIT_MAX_REQUESTS:100}
+    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
 
 # Spring Boot Actuator: expose only health and info over HTTP
 management:
