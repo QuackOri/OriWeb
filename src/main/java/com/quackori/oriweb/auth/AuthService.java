@@ -1,5 +1,7 @@
 package com.quackori.oriweb.auth;
 
+import java.time.Duration;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,10 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
 	public static final String SUSPENDED_MESSAGE = "정지된 계정입니다. 관리자에게 문의하세요.";
+
+	/** 로그인 실패 임계치 (ISMS-P 참고 기준). 도달 시 계정을 일정 시간 잠근다. */
+	public static final int MAX_FAILED_ATTEMPTS = 5;
+	private static final Duration LOCK_DURATION = Duration.ofMinutes(10);
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -72,13 +78,22 @@ public class AuthService {
 		return false;
 	}
 
+	@Transactional
 	public User login(LoginRequest request) {
 		User user = userRepository.findByUsername(request.username())
-				.filter(found -> passwordEncoder.matches(request.password(), found.getPassword()))
 				.orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."));
+		if (user.isLoginLocked()) {
+			throw new ApiException(HttpStatus.TOO_MANY_REQUESTS,
+					"로그인 실패 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.");
+		}
+		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+			user.recordFailedLogin(MAX_FAILED_ATTEMPTS, LOCK_DURATION);
+			throw new ApiException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다.");
+		}
 		if (user.isSuspended()) {
 			throw new ApiException(HttpStatus.FORBIDDEN, SUSPENDED_MESSAGE);
 		}
+		user.resetFailedLogin();
 		return user;
 	}
 
