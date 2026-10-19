@@ -69,6 +69,10 @@ info:
     name: OriWeb
     description: 모의해킹 실습용 게시판
 
+# API 문서(Swagger UI/OpenAPI): 운영 환경에서는 비활성화 (dev 프로파일에서만 활성화)
 springdoc:
+  api-docs:
+    enabled: false
   swagger-ui:
+    enabled: false
     path: /swagger-ui.html
