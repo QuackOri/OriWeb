@@ -41,6 +41,9 @@ server:
   servlet:
     session:
       timeout: 30m
+      cookie:
+        # 교차 사이트 요청에 세션 쿠키 전송을 제한 (CSRF 완화). HTTP/HTTPS 모두 안전
+        same-site: lax
 
 app:
   upload-dir: ${UPLOAD_DIR:./uploads}
