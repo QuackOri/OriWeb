@@ -29,8 +29,47 @@ public class AuthService {
 		if (userRepository.existsByUsername(request.username())) {
 			throw new ApiException(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다.");
 		}
+		validatePasswordNotGuessable(request.username(), request.password());
 		User user = new User(request.username(), passwordEncoder.encode(request.password()));
 		return userRepository.save(user);
+	}
+
+	/** Blocks easily guessable passwords: ones that contain the username, or 4+ sequential/repeated characters. */
+	private void validatePasswordNotGuessable(String username, String password) {
+		String lower = password.toLowerCase();
+		if (lower.contains(username.toLowerCase())) {
+			throw new ApiException(HttpStatus.BAD_REQUEST, "비밀번호에 아이디를 포함할 수 없습니다.");
+		}
+		if (hasRepeatedRun(lower) || hasSequentialRun(lower)) {
+			throw new ApiException(HttpStatus.BAD_REQUEST, "연속되거나 반복되는 문자는 사용할 수 없습니다.");
+		}
+	}
+
+	/** True if the same character repeats 4 or more times in a row (e.g. "aaaa"). */
+	private static boolean hasRepeatedRun(String s) {
+		int run = 1;
+		for (int i = 1; i < s.length(); i++) {
+			run = (s.charAt(i) == s.charAt(i - 1)) ? run + 1 : 1;
+			if (run >= 4) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** True if 4 or more characters run in ascending or descending order (e.g. "1234", "dcba"). */
+	private static boolean hasSequentialRun(String s) {
+		int ascending = 1;
+		int descending = 1;
+		for (int i = 1; i < s.length(); i++) {
+			int diff = s.charAt(i) - s.charAt(i - 1);
+			ascending = (diff == 1) ? ascending + 1 : 1;
+			descending = (diff == -1) ? descending + 1 : 1;
+			if (ascending >= 4 || descending >= 4) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public User login(LoginRequest request) {

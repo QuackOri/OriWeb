@@ -10,6 +10,9 @@ public record SignupRequest(
 		String username,
 
 		@NotBlank(message = "비밀번호를 입력해주세요.")
-		@Size(min = 4, max = 50, message = "비밀번호는 4~50자입니다.")
+		@Size(min = 8, max = 50, message = "비밀번호는 8~50자입니다.")
+		@Pattern(
+				regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
+				message = "비밀번호는 영문, 숫자, 특수문자를 모두 포함해야 합니다.")
 		String password) {
 }
