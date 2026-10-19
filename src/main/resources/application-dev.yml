@@ -1,0 +1,7 @@
+# 개발/테스트 프로파일 전용 설정 (실행: --spring.profiles.active=dev)
+# API 문서(Swagger UI/OpenAPI)를 개발 환경에서만 활성화한다. 운영 환경에서는 비활성 상태로 유지된다.
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
