@@ -1,7 +1,9 @@
 package com.quackori.oriweb.user;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
@@ -50,6 +52,14 @@ public class User {
 	/** Whether the account is suspended. Null for users created before this column existed; treated as not suspended. */
 	private Boolean suspended = false;
 
+	/** 로그인 연속 실패 횟수. 임계치 도달 시 계정이 일정 시간 잠긴다. */
+	@ColumnDefault("0")
+	@Column(nullable = false)
+	private int failedLoginCount = 0;
+
+	/** 로그인 잠금 해제 시각. null이면 잠금 상태가 아니다. */
+	private LocalDateTime lockedUntil;
+
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -68,6 +78,28 @@ public class User {
 
 	public void changeSuspended(boolean suspended) {
 		this.suspended = suspended;
+	}
+
+	public boolean isLoginLocked() {
+		return lockedUntil != null && lockedUntil.isAfter(LocalDateTime.now());
+	}
+
+	/** 로그인 실패를 기록하고, 임계치 도달 시 일정 시간 계정을 잠근다. */
+	public void recordFailedLogin(int maxAttempts, Duration lockDuration) {
+		if (lockedUntil != null && !isLoginLocked()) {
+			// 이전 잠금이 만료되었으면 새로 집계한다
+			failedLoginCount = 0;
+			lockedUntil = null;
+		}
+		failedLoginCount++;
+		if (failedLoginCount >= maxAttempts) {
+			lockedUntil = LocalDateTime.now().plus(lockDuration);
+		}
+	}
+
+	public void resetFailedLogin() {
+		failedLoginCount = 0;
+		lockedUntil = null;
 	}
 
 	public User(String username, String password) {
